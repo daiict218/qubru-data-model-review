@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Billing &amp; Payments (Vlocity / FSC) — Entities &amp; Relationships</title>
+<style>
+  :root{
+    --navy:#1f2a4a; --ink:#1c2433; --muted:#6b7488;
+    --line:#e3e7ef; --bg:#f6f7fb; --card:#ffffff;
+    --pink:#d6336c; --pink-soft:#fbe6ee; --chip:#eef1f7;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  nav.viewnav{background:#162038;display:flex;gap:4px;padding:9px 30px;flex-wrap:wrap;align-items:center;border-bottom:1px solid rgba(255,255,255,.08);}
+  nav.viewnav .brand{color:#fff;font-weight:700;font-size:12.5px;margin-right:14px;letter-spacing:.02em;}
+  nav.viewnav a{color:#c7cee0;text-decoration:none;font-size:12.5px;font-weight:600;padding:5px 12px;border-radius:999px;}
+  nav.viewnav a:hover{background:rgba(255,255,255,.10);color:#fff;}
+  nav.viewnav a.active{background:#fff;color:#1f2a4a;}
+  header.top{background:var(--navy);color:#fff;padding:22px 30px;}
+  header.top h1{margin:0 0 6px;font-size:20px;font-weight:700;}
+  header.top p{margin:0;font-size:13px;color:#c7cee0;max-width:1040px;}
+  .summary{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+  .pill{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);
+    border-radius:999px;padding:4px 12px;font-size:12px;font-weight:600;}
+  main{max-width:1180px;margin:0 auto;padding:26px 20px 60px;}
+  section{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:20px 22px;margin-bottom:24px;box-shadow:0 1px 2px rgba(20,30,60,.04);}
+  h2{margin:0 0 4px;font-size:16px;color:var(--navy);}
+  h2 .count{color:var(--muted);font-weight:500;font-size:13px;}
+  .sub{margin:0 0 16px;color:var(--muted);font-size:12.5px;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th,td{text-align:left;padding:9px 11px;vertical-align:top;border-bottom:1px solid var(--line);}
+  th{background:#f1f3f9;color:var(--navy);font-weight:700;font-size:11.5px;
+    text-transform:uppercase;letter-spacing:.04em;}
+  tr:last-child td{border-bottom:none;}
+  td.num{color:var(--muted);width:30px;}
+  code{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:12px;}
+  .ent{font-weight:700;color:var(--ink);}
+  .api{color:var(--muted);font-weight:400;font-size:11px;}
+  .pk{color:var(--pink);font-weight:700}
+  .note{color:var(--muted);font-size:12px}
+  .card{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-weight:700;color:var(--navy);white-space:nowrap;}
+  .card.mn{color:var(--pink);}
+  .rel{font-weight:700;color:#384060;white-space:nowrap;}
+  .meaning{color:var(--ink);font-size:12.5px}
+  tr.junction td{background:#fdf3f7;}
+  tr.group td{background:#eef1f7;color:var(--navy);font-weight:700;font-size:11px;
+    text-transform:uppercase;letter-spacing:.05em;padding:7px 11px;}
+  .callout{background:var(--pink-soft);border:1px solid #f3c6d7;border-radius:10px;padding:14px 16px;font-size:13px;}
+  .callout h3{margin:0 0 8px;font-size:13px;color:var(--pink);}
+  .callout ul{margin:0;padding-left:18px;} .callout li{margin:3px 0;}
+  .foot{color:var(--muted);font-size:12px;margin-top:8px;}
+</style>
+</head>
+<body>
+<nav class="viewnav">
+  <span class="brand">Qubru · commercial-auto data model</span>
+  <a href="index.html">① Customer Model</a>
+  <a href="policy-management.html">② Policy Management</a>
+  <a href="quoting-applications.html">③ Quoting &amp; Applications</a>
+  <a href="claim-management.html">④ Claim Management</a>
+  <a href="billing-payments.html" class="active">⑤ Billing &amp; Payments</a>
+</nav>
+<header class="top">
+  <h1>Billing &amp; Payments — Vlocity / FSC (Salesforce source model)</h1>
+  <p>Exact entities and relationships from the Vlocity <b>“Insurance and Financial Services Billing and Payments” ERD</b> (Sept 2020),
+     the money-movement seat (bills issued and payments received). Faithful source model — <b>not yet mapped to Qubru</b>.
+     The view has a small <b>billing core</b> (Payment, Statement) plus the <b>customer-side entities it attaches to</b> (the seam it shares with the Customer Model view).</p>
+  <div class="summary">
+    <span class="pill">7 entities</span>
+    <span class="pill">20 relationships</span>
+    <span class="pill">2 billing-core · 5 customer-seam</span>
+    <span class="pill">cardinalities read from the ERD</span>
+  </div>
+</header>
+
+<main>
+
+  <section>
+    <h2>1 · Entities <span class="count">(7 objects — 2 billing-core, 5 customer-seam)</span></h2>
+    <p class="sub">Each entity with <b>why it's used</b>. The <span class="pk">pink</span> field is the entity's primary key.</p>
+    <table>
+      <thead><tr><th class="num">#</th><th>Entity</th><th>Why it's used</th><th>Key fields</th><th>Subtypes / record-types</th></tr></thead>
+      <tbody>
+        <tr class="group"><td colspan="5">Billing core — new in this view</td></tr>
+        <tr><td class="num">1</td><td class="ent">Payment <span class="api">(External Object or API)</span></td><td class="note">An actual payment received — lives outside Salesforce, surfaced via external object / API.</td><td><span class="pk">Payment Identifier</span>, Amount, Currency</td><td class="note">—</td></tr>
+        <tr><td class="num">2</td><td class="ent">Statement (Bill) <span class="api">(Statement__c)</span></td><td class="note">A bill issued to the customer for a period.</td><td><span class="pk">Statement Date</span>, Statement Period Start/End Dates, Current Balance, Balance Due, Due Date, Statement Image URL</td><td class="note">—</td></tr>
+        <tr class="group"><td colspan="5">Customer seam — repeated from the Customer Model, where billing attaches</td></tr>
+        <tr><td class="num">3</td><td class="ent">Held Product or Service <span class="api">(Asset)</span></td><td class="note">What's being billed / paid for.</td><td><span class="pk">Asset Id</span></td><td class="note">Financial Account (# Account Number, Line of Business); Insurance Policy → Commercial Lines / Personal Lines / Individual Life / Individual Annuity / Other Policy; Provided Service; Other Held Product or Service</td></tr>
+        <tr><td class="num">4</td><td class="ent">Billing Account <span class="api">(BillingAccount__c)</span></td><td class="note">The account a bill is raised against.</td><td><span class="pk">Billing Account Number</span>, Billing Frequency, Bill Delivery Method, Billing Address / Email, Is Autopay Enabled, Autopay Amount</td><td class="note">—</td></tr>
+        <tr><td class="num">5</td><td class="ent">Client Payment Method <span class="api">(PaymentMethod__c)</span></td><td class="note">The saved method a payment is made through.</td><td><span class="pk">Nickname</span>, Method Type, Bank Acct Num, Payment Gateway Auth. Token</td><td class="note">—</td></tr>
+        <tr><td class="num">6</td><td class="ent">Party <span class="api">(Party__c)</span></td><td class="note">The payer / billing contact.</td><td><span class="pk">Party Id</span></td><td class="note">Person (Contact); Company, Organization or Other Group; Other Party</td></tr>
+        <tr><td class="num">7</td><td class="ent">Account <span class="api">(Account)</span></td><td class="note">The customer the billing belongs to.</td><td><span class="pk">Account / Client Number</span>, Name, Status (Prospect/Client), Priority</td><td class="note">Client → Group / Plan Sponsor / Business Client (# Employees, # FTEs), Other Client, Consumer Client; Other Account</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>2 · Relationships <span class="count">(20 relationships — 8 billing-core, 12 customer-seam)</span></h2>
+    <p class="sub"><code>A 1:N B</code> = one A, many B. The <b>Relationship</b> column is the verb (the named edge): read it as <code>From · relationship · To</code>. <span class="card mn">M:N</span> rows (pink) are junctions.</p>
+    <table>
+      <thead><tr><th class="num">#</th><th>From</th><th>Relationship</th><th>Card.</th><th>To</th><th>What it means (plain English)</th></tr></thead>
+      <tbody>
+        <tr class="group"><td colspan="6">Billing core</td></tr>
+        <tr><td class="num">1</td><td>Payment</td><td class="rel">in response to</td><td class="card">N:1</td><td>Statement (Bill)</td><td class="meaning">a payment is made in response to a bill.</td></tr>
+        <tr><td class="num">2</td><td>Payment</td><td class="rel">for payment of</td><td class="card">N:1</td><td>Held Product or Service</td><td class="meaning">the policy / asset the payment settles.</td></tr>
+        <tr><td class="num">3</td><td>Payment</td><td class="rel">for payment of</td><td class="card">N:1</td><td>Billing Account</td><td class="meaning">the billing account the payment settles.</td></tr>
+        <tr><td class="num">4</td><td>Payment</td><td class="rel">paid via</td><td class="card">N:1</td><td>Client Payment Method</td><td class="meaning">the method the payment went through.</td></tr>
+        <tr><td class="num">5</td><td>Payment</td><td class="rel">paid by</td><td class="card">N:1</td><td>Party</td><td class="meaning">the payer (a person / org).</td></tr>
+        <tr><td class="num">6</td><td>Payment</td><td class="rel">paid on behalf of</td><td class="card">N:1</td><td>Account</td><td class="meaning">the account the payment is made for.</td></tr>
+        <tr><td class="num">7</td><td>Statement (Bill)</td><td class="rel">for</td><td class="card">N:1</td><td>Held Product or Service</td><td class="meaning">a bill covers a policy / asset.</td></tr>
+        <tr><td class="num">8</td><td>Statement (Bill)</td><td class="rel">for</td><td class="card">N:1</td><td>Billing Account</td><td class="meaning">a bill is raised against a billing account.</td></tr>
+        <tr class="group"><td colspan="6">Customer seam — same edges as the Customer Model view</td></tr>
+        <tr><td class="num">9</td><td>Held Product or Service</td><td class="rel">primarily for</td><td class="card">N:1</td><td>Party</td><td class="meaning">a held product / service is held primarily for one party.</td></tr>
+        <tr><td class="num">10</td><td>Held Product or Service</td><td class="rel">billed for under</td><td class="card">N:1</td><td>Billing Account</td><td class="meaning">a policy / asset is billed under a billing account.</td></tr>
+        <tr><td class="num">11</td><td>Held Product or Service</td><td class="rel">paid for via</td><td class="card">N:1</td><td>Client Payment Method</td><td class="meaning">an asset is paid for via a payment method.</td></tr>
+        <tr><td class="num">12</td><td>Billing Account</td><td class="rel">primarily for</td><td class="card">N:1</td><td>Account</td><td class="meaning">a billing account belongs primarily to one account.</td></tr>
+        <tr><td class="num">13</td><td>Billing Account</td><td class="rel">paid via</td><td class="card">N:1</td><td>Client Payment Method</td><td class="meaning">a billing account is paid via a payment method.</td></tr>
+        <tr><td class="num">14</td><td>Client Payment Method</td><td class="rel">saved for</td><td class="card">N:1</td><td>Account</td><td class="meaning">a payment method is saved / set up for an account.</td></tr>
+        <tr><td class="num">15</td><td>Person</td><td class="rel">billing contact for</td><td class="card">1:N</td><td>Billing Account</td><td class="meaning">a person is the billing contact for billing accounts.</td></tr>
+        <tr><td class="num">16</td><td>Account</td><td class="rel">parent of / child of</td><td class="card">1:N (self)</td><td>Account</td><td class="meaning">account hierarchy (parent company → subsidiary).</td></tr>
+        <tr><td class="num">17</td><td>Account</td><td class="rel">considered as</td><td class="card">1:1</td><td>Party</td><td class="meaning">an account is also represented as a party (Account ↔ Party duality).</td></tr>
+        <tr><td class="num">18</td><td>Account (Consumer Client)</td><td class="rel">identified as</td><td class="card">1:1</td><td>Person</td><td class="meaning">a consumer / sole-proprietor account is the same as one person.</td></tr>
+        <tr class="junction"><td class="num">19</td><td>Person</td><td class="rel">a contact for</td><td class="card mn">M:N</td><td>Account</td><td class="meaning">a person is a contact for accounts (the ACR link, drawn direct in this view).</td></tr>
+        <tr><td class="num">20</td><td>Held Product or Service</td><td class="rel">provided with</td><td class="card">N:1 (self)</td><td>Held Product or Service</td><td class="meaning">a financial account can be bundled with an insurance policy.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <div class="callout">
+      <h3>Validation notes</h3>
+      <ul>
+        <li><b>Billing core vs customer seam.</b> Entities 1–2 and relationships 1–8 are the billing-specific objects (new in this view). Entities 3–7 and relationships 9–20 are the customer-side entities billing attaches to — the same objects in the Customer Model view, repeated as the seam.</li>
+        <li><b>Payment is an External Object</b> — actual payments live in an external system and are surfaced into Salesforce read-mostly via OData / API; that's why it has no <code>__c</code> and sits to one side. It fans out to the statement it answers (#1), what it settles (#2, #3), how it was paid (#4), who paid (#5), and on whose behalf (#6).</li>
+        <li><b>The Account ↔ Party duality carries over from the Customer Model:</b> holdings (Asset) hang off Party (#9), billing hangs off Account (#12, #14), bridged by "considered as" (#17) / "identified as" (#18). <b>1:1:</b> #17, #18. <b>Self:</b> Account hierarchy (#16), Asset "provided with" (#20).</li>
+        <li><b>M:N (1, pink):</b> Person ↔ Account "a contact for" (#19). This billing view draws it as a direct line; the Customer Model view models the same link through its <b>Account Contact Relationship</b> junction entity.</li>
+      </ul>
+    </div>
+    <p class="foot">Source: Vlocity “Insurance and Financial Services Billing and Payments” ERD (Sept 2020). Faithful source model — Qubru mapping is a separate step.</p>
+  </section>
+
+  <section>
+    <h2>3 · Diagram <span class="count">(rendered from D2 — 7 entities · 20 relationships)</span></h2>
+    <p class="sub">Code-based diagram (D2) of the exact same model in the tables above. Source: <code>2026-06-14-billing-payments.d2</code> · <span style="color:var(--pink);font-weight:700">pink-dashed</span> = the M:N "a contact for" link · <span style="color:#EC136E;font-weight:700">pink-solid</span> = the Account ↔ Party duality. Payment is the hub of the billing core; Account / Party are the seam to the customer side.</p>
+    <img src="2026-06-14-billing-payments-d2.svg" alt="Billing and Payments entity-relationship diagram, rendered from D2 — 7 entities and 20 relationships" style="width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff;" />
+  </section>
+
+</main>
+</body>
+</html>
