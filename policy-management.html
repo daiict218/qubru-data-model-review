@@ -46,9 +46,20 @@
   .callout h3{margin:0 0 8px;font-size:13px;color:var(--pink);}
   .callout ul{margin:0;padding-left:18px;} .callout li{margin:3px 0;}
   .foot{color:var(--muted);font-size:12px;margin-top:8px;}
+  nav.viewnav{background:#162038;display:flex;gap:4px;padding:9px 30px;flex-wrap:wrap;align-items:center;border-bottom:1px solid rgba(255,255,255,.08);}
+  nav.viewnav .brand{color:#fff;font-weight:700;font-size:12.5px;margin-right:14px;letter-spacing:.02em;}
+  nav.viewnav a{color:#c7cee0;text-decoration:none;font-size:12.5px;font-weight:600;padding:5px 12px;border-radius:999px;}
+  nav.viewnav a:hover{background:rgba(255,255,255,.10);color:#fff;}
+  nav.viewnav a.active{background:#fff;color:#1f2a4a;}
 </style>
 </head>
 <body>
+<nav class="viewnav">
+  <span class="brand">Qubru · commercial-auto data model</span>
+  <a href="index.html">① Customer Model</a>
+  <a href="policy-management.html" class="active">② Policy Management</a>
+  <a href="quoting-applications.html">③ Quoting &amp; Applications</a>
+</nav>
 <header class="top">
   <h1>Policy Management — FSC (Salesforce source model)</h1>
   <p>Exact entities and relationships from the Salesforce <b>“Policy Management with FSC Insurance” ERD</b> (last updated March 2021).
