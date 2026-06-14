@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Customer Model (Vlocity / FSC) — Entities &amp; Relationships</title>
+<style>
+  :root{
+    --navy:#1f2a4a; --ink:#1c2433; --muted:#6b7488;
+    --line:#e3e7ef; --bg:#f6f7fb; --card:#ffffff;
+    --pink:#d6336c; --pink-soft:#fbe6ee; --chip:#eef1f7;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  nav.viewnav{background:#162038;display:flex;gap:4px;padding:9px 30px;flex-wrap:wrap;align-items:center;border-bottom:1px solid rgba(255,255,255,.08);}
+  nav.viewnav .brand{color:#fff;font-weight:700;font-size:12.5px;margin-right:14px;letter-spacing:.02em;}
+  nav.viewnav a{color:#c7cee0;text-decoration:none;font-size:12.5px;font-weight:600;padding:5px 12px;border-radius:999px;}
+  nav.viewnav a:hover{background:rgba(255,255,255,.10);color:#fff;}
+  nav.viewnav a.active{background:#fff;color:#1f2a4a;}
+  header.top{background:var(--navy);color:#fff;padding:22px 30px;}
+  header.top h1{margin:0 0 6px;font-size:20px;font-weight:700;}
+  header.top p{margin:0;font-size:13px;color:#c7cee0;max-width:1040px;}
+  .summary{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+  .pill{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);
+    border-radius:999px;padding:4px 12px;font-size:12px;font-weight:600;}
+  main{max-width:1180px;margin:0 auto;padding:26px 20px 60px;}
+  section{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:20px 22px;margin-bottom:24px;box-shadow:0 1px 2px rgba(20,30,60,.04);}
+  h2{margin:0 0 4px;font-size:16px;color:var(--navy);}
+  h2 .count{color:var(--muted);font-weight:500;font-size:13px;}
+  .sub{margin:0 0 16px;color:var(--muted);font-size:12.5px;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th,td{text-align:left;padding:9px 11px;vertical-align:top;border-bottom:1px solid var(--line);}
+  th{background:#f1f3f9;color:var(--navy);font-weight:700;font-size:11.5px;
+    text-transform:uppercase;letter-spacing:.04em;}
+  tr:last-child td{border-bottom:none;}
+  td.num{color:var(--muted);width:30px;}
+  code{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:12px;}
+  .ent{font-weight:700;color:var(--ink);}
+  .api{color:var(--muted);font-weight:400;font-size:11px;}
+  .pk{color:var(--pink);font-weight:700}
+  .note{color:var(--muted);font-size:12px}
+  .card{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-weight:700;color:var(--navy);white-space:nowrap;}
+  .card.mn{color:var(--pink);}
+  .rel{font-weight:700;color:#384060;white-space:nowrap;}
+  .meaning{color:var(--ink);font-size:12.5px}
+  tr.junction td{background:#fdf3f7;}
+  .callout{background:var(--pink-soft);border:1px solid #f3c6d7;border-radius:10px;padding:14px 16px;font-size:13px;}
+  .callout h3{margin:0 0 8px;font-size:13px;color:var(--pink);}
+  .callout ul{margin:0;padding-left:18px;} .callout li{margin:3px 0;}
+  .foot{color:var(--muted);font-size:12px;margin-top:8px;}
+</style>
+</head>
+<body>
+<nav class="viewnav">
+  <span class="brand">Qubru · commercial-auto data model</span>
+  <a href="index.html">◆ Unified Schema</a>
+  <a href="customer-model.html" class="active">① Customer Model</a>
+  <a href="policy-management.html">② Policy Management</a>
+  <a href="quoting-applications.html">③ Quoting &amp; Applications</a>
+  <a href="claim-management.html">④ Claim Management</a>
+  <a href="billing-payments.html">⑤ Billing &amp; Payments</a>
+</nav>
+<header class="top">
+  <h1>Customer Model — Vlocity / FSC (Salesforce source model)</h1>
+  <p>Exact entities and relationships from the Vlocity <b>“Insurance and Financial Services Customer Model” ERD</b> (Sept 2020).
+     Faithful source model — <b>not yet mapped to Qubru</b>. This is the customer / party / holdings backbone the other four views hang off.
+     The two many-to-many junctions (<b>Party Relationship</b>, <b>Account Contact Relationship</b>) are kept as entities, as in the other source views.</p>
+  <div class="summary">
+    <span class="pill">14 entities</span>
+    <span class="pill">24 relationships</span>
+    <span class="pill">cardinalities read from the ERD</span>
+  </div>
+</header>
+
+<main>
+
+  <section>
+    <h2>1 · Entities <span class="count">(14 objects)</span></h2>
+    <p class="sub">Each entity with <b>why it's used</b>. The <span class="pk">pink</span> field is the entity's primary key.</p>
+    <table>
+      <thead><tr><th class="num">#</th><th>Entity</th><th>Why it's used</th><th>Key fields</th><th>Subtypes / record-types</th></tr></thead>
+      <tbody>
+        <tr><td class="num">1</td><td class="ent">Held Product or Service <span class="api">(Asset)</span></td><td class="note">The umbrella for everything a customer holds with you.</td><td><span class="pk">Asset Id</span></td><td class="note">Financial Account (# Account Number, Line of Business); Insurance Policy (# Policy Number, Line of Business, Effective Date, Policy Type, Expiration Date); Provided Service; Other Held Product or Service</td></tr>
+        <tr><td class="num">2</td><td class="ent">Financial Statement <span class="api">(FinancialStatement__c)</span></td><td class="note">A customer's financial statement (KYC / suitability).</td><td><span class="pk">Account or Lead</span>, As Of / Reporting Date, Statement Attributes</td><td class="note">—</td></tr>
+        <tr><td class="num">3</td><td class="ent">Financial Statement Line Item <span class="api">(FinancialStatementLineItem__c)</span></td><td class="note">One line on a financial statement.</td><td><span class="pk">Line Item Id</span>, Name, Description, Amount, Reporting Date, Class, Line Item Attributes</td><td class="note">Reported Income / Expense / Asset / Liability; Other Line Item; Reported Insurable Item</td></tr>
+        <tr><td class="num">4</td><td class="ent">Billing Account <span class="api">(BillingAccount__c)</span></td><td class="note">How a customer is billed.</td><td><span class="pk">Name / Billing Account Number</span>, Billing Frequency, Bill Delivery Method, Billing Address / Email, Is Autopay Enabled, Autopay Amount</td><td class="note">—</td></tr>
+        <tr><td class="num">5</td><td class="ent">Client Payment Method <span class="api">(PaymentMethod__c)</span></td><td class="note">A saved way to pay.</td><td><span class="pk">Nickname</span>, Method Type, Bank Acct Num, Payment Gateway Auth. Token</td><td class="note">—</td></tr>
+        <tr><td class="num">6</td><td class="ent">Non-Held Product <span class="api">(NonHeldProduct__c / NonHeldPolicy__c)</span></td><td class="note">A product / policy the customer holds <b>elsewhere</b> (competitor intel).</td><td><span class="pk">Non-Held Product Id</span>, Expiration Date, Policy Type, Line of Business, Policy Jurisdiction</td><td class="note">—</td></tr>
+        <tr><td class="num">7</td><td class="ent">Insurable Item <span class="api">(InsurableItem__c)</span></td><td class="note">A thing that could be insured but isn't yet (quote-ready).</td><td><span class="pk">Insurable Item Id</span></td><td class="note">—</td></tr>
+        <tr><td class="num">8</td><td class="ent">Party <span class="api">(Party__c)</span></td><td class="note">Any person or organisation — the universal actor.</td><td><span class="pk">Party Id</span></td><td class="note">Person (Contact); Company, Organization or Other Group; Other Party</td></tr>
+        <tr><td class="num">9</td><td class="ent">Party Relationship <span class="api">(PartyRelationship__c)</span></td><td class="note">Junction linking two parties (e.g. spouse, employer).</td><td><span class="pk">Party Relationship Id</span>, Relationship Start Date, Relationship End Date, Is Active?</td><td class="note">—</td></tr>
+        <tr><td class="num">10</td><td class="ent">Party Relationship Type <span class="api">(PartyRelationshipType__c)</span></td><td class="note">The roles / types a party relationship can take.</td><td><span class="pk">Party Relationship Type Id</span>, Source Role, Source Party Type, Target Role, Target Party Type</td><td class="note">—</td></tr>
+        <tr><td class="num">11</td><td class="ent">Profile Attribute <span class="api">(AttributeAssignment__c)</span></td><td class="note">EAV — an attribute value assigned to a party.</td><td><span class="pk">Profile Attribute Id</span>, Profile Value, Date Added / Removed</td><td class="note">—</td></tr>
+        <tr><td class="num">12</td><td class="ent">Attribute <span class="api">(Attribute__c)</span></td><td class="note">The definition of a configurable attribute.</td><td><span class="pk">Code</span>, Name, Display Sequence, Display as Filter?, Configurable?, Is Active?</td><td class="note">—</td></tr>
+        <tr><td class="num">13</td><td class="ent">Account Contact Relationship <span class="api">(AccountContactRelationship)</span></td><td class="note">Junction linking an account to a contact (person).</td><td><span class="pk">ACR Id</span>, Roles, Active, Start / End Date, Is Direct</td><td class="note">—</td></tr>
+        <tr><td class="num">14</td><td class="ent">Account <span class="api">(Account)</span></td><td class="note">The CRM account — the customer record.</td><td><span class="pk">Client Number / Account Id</span>, Name, Status (Prospect/Client), Priority</td><td class="note">Client → Business Client (# Employees, # FTEs), Other Client, Consumer Client; Other Account</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>2 · Relationships <span class="count">(24 relationships)</span></h2>
+    <p class="sub"><code>A 1:N B</code> = one A, many B. The <b>Relationship</b> column is the verb (the named edge): read it as <code>From · relationship · To</code>. The two junction entities (Party Relationship #15–16, Account Contact Relationship #20–21) are the model's many-to-many links, kept as entities.</p>
+    <table>
+      <thead><tr><th class="num">#</th><th>From</th><th>Relationship</th><th>Card.</th><th>To</th><th>What it means (plain English)</th></tr></thead>
+      <tbody>
+        <tr><td class="num">1</td><td>Held Product or Service</td><td class="rel">primarily for</td><td class="card">N:1</td><td>Party</td><td class="meaning">a held product / service is held primarily for one party (the holder).</td></tr>
+        <tr><td class="num">2</td><td>Held Product or Service</td><td class="rel">billed for under</td><td class="card">N:1</td><td>Billing Account</td><td class="meaning">a policy / asset is billed under a billing account.</td></tr>
+        <tr><td class="num">3</td><td>Held Product or Service</td><td class="rel">paid for via</td><td class="card">N:1</td><td>Client Payment Method</td><td class="meaning">an asset is paid for via a payment method.</td></tr>
+        <tr><td class="num">4</td><td>Billing Account</td><td class="rel">primarily for</td><td class="card">N:1</td><td>Account</td><td class="meaning">a billing account belongs primarily to one account.</td></tr>
+        <tr><td class="num">5</td><td>Billing Account</td><td class="rel">paid via</td><td class="card">N:1</td><td>Client Payment Method</td><td class="meaning">a billing account is paid via a payment method.</td></tr>
+        <tr><td class="num">6</td><td>Client Payment Method</td><td class="rel">saved for</td><td class="card">N:1</td><td>Account</td><td class="meaning">a payment method is saved / set up for an account.</td></tr>
+        <tr><td class="num">7</td><td>Person</td><td class="rel">billing contact for</td><td class="card">1:N</td><td>Billing Account</td><td class="meaning">a person is the billing contact for billing accounts.</td></tr>
+        <tr><td class="num">8</td><td>Financial Statement</td><td class="rel">for</td><td class="card">N:1</td><td>Account</td><td class="meaning">a financial statement is for one account.</td></tr>
+        <tr><td class="num">9</td><td>Financial Statement Line Item</td><td class="rel">defined for</td><td class="card">N:1</td><td>Financial Statement</td><td class="meaning">a line item belongs to one statement.</td></tr>
+        <tr><td class="num">10</td><td>Financial Statement Line Item</td><td class="rel">described by</td><td class="card">N:1</td><td>Non-Held Product</td><td class="meaning">a line item can be described by a non-held product.</td></tr>
+        <tr><td class="num">11</td><td>Financial Statement Line Item</td><td class="rel">reported for</td><td class="card">N:1</td><td>Insurable Item</td><td class="meaning">a "reported insurable item" line points to an insurable item.</td></tr>
+        <tr><td class="num">12</td><td>Non-Held Product</td><td class="rel">owned by</td><td class="card">N:1</td><td>Account</td><td class="meaning">a non-held product is owned by an account.</td></tr>
+        <tr><td class="num">13</td><td>Insurable Item</td><td class="rel">subject of</td><td class="card">N:1</td><td>Account</td><td class="meaning">an insurable item belongs to an account.</td></tr>
+        <tr><td class="num">14</td><td>Account</td><td class="rel">parent of / child of</td><td class="card">1:N (self)</td><td>Account</td><td class="meaning">account hierarchy (parent company → subsidiary).</td></tr>
+        <tr class="junction"><td class="num">15</td><td>Party Relationship</td><td class="rel">a party to (from)</td><td class="card">N:1</td><td>Party</td><td class="meaning">the "from" party of the relationship.</td></tr>
+        <tr class="junction"><td class="num">16</td><td>Party Relationship</td><td class="rel">a party to (to)</td><td class="card">N:1</td><td>Party</td><td class="meaning">the "to" party of the relationship.</td></tr>
+        <tr><td class="num">17</td><td>Party Relationship</td><td class="rel">type of</td><td class="card">N:1</td><td>Party Relationship Type</td><td class="meaning">the relationship's roles / type.</td></tr>
+        <tr><td class="num">18</td><td>Profile Attribute</td><td class="rel">tagged on</td><td class="card">N:1</td><td>Party</td><td class="meaning">an attribute value sits on a party.</td></tr>
+        <tr><td class="num">19</td><td>Profile Attribute</td><td class="rel">defined by</td><td class="card">N:1</td><td>Attribute</td><td class="meaning">the attribute definition the value uses.</td></tr>
+        <tr class="junction"><td class="num">20</td><td>Account Contact Relationship</td><td class="rel">for</td><td class="card">N:1</td><td>Account</td><td class="meaning">the account side of the account-contact link.</td></tr>
+        <tr class="junction"><td class="num">21</td><td>Account Contact Relationship</td><td class="rel">of</td><td class="card">N:1</td><td>Person</td><td class="meaning">the person side of the account-contact link.</td></tr>
+        <tr><td class="num">22</td><td>Account</td><td class="rel">considered as</td><td class="card">1:1</td><td>Party</td><td class="meaning">an account is also represented as a party (Account ↔ Party duality).</td></tr>
+        <tr><td class="num">23</td><td>Account (Consumer Client)</td><td class="rel">identified as</td><td class="card">1:1</td><td>Person</td><td class="meaning">a consumer / sole-proprietor account is the same as one person.</td></tr>
+        <tr><td class="num">24</td><td>Held Product or Service</td><td class="rel">provided with</td><td class="card">N:1 (self)</td><td>Held Product or Service</td><td class="meaning">a financial account can be bundled with an insurance policy.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <div class="callout">
+      <h3>Validation notes</h3>
+      <ul>
+        <li><b>This is the faithful source model</b> — it keeps the junction objects as entities, exactly like the other three source views. <b>Party Relationship</b> (#15–16) is the Party ↔ Party many-to-many; <b>Account Contact Relationship</b> (#20–21) is the Account ↔ Person many-to-many. (The earlier "graph-native" Customer Model collapsed these into edges and dropped Attribute / Profile Attribute / Party Relationship Type — that version is the Qubru mapping, a separate step.)</li>
+        <li><b>The Account ↔ Party duality is the spine of this view:</b> holdings (Asset) hang off <b>Party</b> (#1), while billing / statements / non-held / insurable items hang off <b>Account</b> (#4, #8, #12, #13); the two are bridged by "considered as" (#22) and "identified as" (#23). Account and Party are the same real-world customer viewed two ways.</li>
+        <li><b>1:1:</b> Account ↔ Party (#22), Account ↔ Person (#23). <b>Self:</b> Account hierarchy (#14), Asset "provided with" (#24).</li>
+        <li><b>Read from the ERD, please confirm:</b> #10 line-item "described by" Non-Held Product; #24 "provided with" (Financial Account ↔ Insurance Policy bundle); the 1:1 reading on #22 / #23.</li>
+      </ul>
+    </div>
+    <p class="foot">Source: Vlocity “Insurance and Financial Services Customer Model” ERD (Sept 2020). Faithful source model — Qubru mapping is a separate step.</p>
+  </section>
+
+  <section>
+    <h2>3 · Diagram <span class="count">(rendered from D2 — 14 entities · 24 relationships)</span></h2>
+    <p class="sub">Code-based diagram (D2) of the exact same model in the tables above. Source: <code>2026-06-14-customer-model-faithful.d2</code> · <span style="color:var(--pink);font-weight:700">pink-dashed</span> = the two M:N junction entities (Party Relationship, Account Contact Relationship) · <span style="color:#EC136E;font-weight:700">pink-solid</span> = the Account ↔ Party duality. Party and Account are the twin hubs.</p>
+    <img src="2026-06-14-customer-model-faithful-d2.svg" alt="Customer Model entity-relationship diagram, rendered from D2 — 14 entities and 24 relationships" style="width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff;" />
+  </section>
+
+</main>
+</body>
+</html>

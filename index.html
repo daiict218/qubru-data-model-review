@@ -3,16 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Customer Model (Vlocity / FSC) — Entities &amp; Relationships</title>
+<title>Unified Holistic Schema — Qubru commercial-auto data model</title>
 <style>
-  :root{
-    --navy:#1f2a4a; --ink:#1c2433; --muted:#6b7488;
-    --line:#e3e7ef; --bg:#f6f7fb; --card:#ffffff;
-    --pink:#d6336c; --pink-soft:#fbe6ee; --chip:#eef1f7;
-  }
+  :root{--navy:#1f2a4a;--ink:#1c2433;--muted:#6b7488;--line:#e3e7ef;--bg:#f6f7fb;--card:#fff;--pink:#d6336c;--pink-soft:#fbe6ee;}
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);
-    font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
   nav.viewnav{background:#162038;display:flex;gap:4px;padding:9px 30px;flex-wrap:wrap;align-items:center;border-bottom:1px solid rgba(255,255,255,.08);}
   nav.viewnav .brand{color:#fff;font-weight:700;font-size:12.5px;margin-right:14px;letter-spacing:.02em;}
   nav.viewnav a{color:#c7cee0;text-decoration:none;font-size:12.5px;font-weight:600;padding:5px 12px;border-radius:999px;}
@@ -20,138 +15,267 @@
   nav.viewnav a.active{background:#fff;color:#1f2a4a;}
   header.top{background:var(--navy);color:#fff;padding:22px 30px;}
   header.top h1{margin:0 0 6px;font-size:20px;font-weight:700;}
-  header.top p{margin:0;font-size:13px;color:#c7cee0;max-width:1040px;}
+  header.top p{margin:0;font-size:13px;color:#c7cee0;max-width:1080px;}
   .summary{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
-  .pill{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);
-    border-radius:999px;padding:4px 12px;font-size:12px;font-weight:600;}
-  main{max-width:1180px;margin:0 auto;padding:26px 20px 60px;}
-  section{background:var(--card);border:1px solid var(--line);border-radius:12px;
-    padding:20px 22px;margin-bottom:24px;box-shadow:0 1px 2px rgba(20,30,60,.04);}
-  h2{margin:0 0 4px;font-size:16px;color:var(--navy);}
-  h2 .count{color:var(--muted);font-weight:500;font-size:13px;}
+  .pill{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:4px 12px;font-size:12px;font-weight:600;}
+  main{max-width:1240px;margin:0 auto;padding:26px 20px 60px;}
+  section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin-bottom:24px;box-shadow:0 1px 2px rgba(20,30,60,.04);}
+  h2{margin:0 0 4px;font-size:16px;color:var(--navy);} h2 .count{color:var(--muted);font-weight:500;font-size:13px;}
   .sub{margin:0 0 16px;color:var(--muted);font-size:12.5px;}
   table{width:100%;border-collapse:collapse;font-size:13px;}
   th,td{text-align:left;padding:9px 11px;vertical-align:top;border-bottom:1px solid var(--line);}
-  th{background:#f1f3f9;color:var(--navy);font-weight:700;font-size:11.5px;
-    text-transform:uppercase;letter-spacing:.04em;}
+  th{background:#f1f3f9;color:var(--navy);font-weight:700;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;}
   tr:last-child td{border-bottom:none;}
   td.num{color:var(--muted);width:30px;}
   code{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:12px;}
   .ent{font-weight:700;color:var(--ink);}
-  .api{color:var(--muted);font-weight:400;font-size:11px;}
+  .maps{font-weight:400;color:var(--muted);font-size:11px;margin-top:2px;}
   .pk{color:var(--pink);font-weight:700}
   .note{color:var(--muted);font-size:12px}
   .card{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-weight:700;color:var(--navy);white-space:nowrap;}
   .card.mn{color:var(--pink);}
-  .rel{font-weight:700;color:#384060;white-space:nowrap;}
+  .rel{font-weight:700;color:#384060;}
   .meaning{color:var(--ink);font-size:12.5px}
+  .vw{font-weight:700;color:#586074;white-space:nowrap;font-size:13px;}
   tr.junction td{background:#fdf3f7;}
+  tr.group td{background:#e7ecf5;color:var(--navy);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.05em;padding:8px 11px;}
   .callout{background:var(--pink-soft);border:1px solid #f3c6d7;border-radius:10px;padding:14px 16px;font-size:13px;}
-  .callout h3{margin:0 0 8px;font-size:13px;color:var(--pink);}
-  .callout ul{margin:0;padding-left:18px;} .callout li{margin:3px 0;}
+  .callout h3{margin:0 0 8px;font-size:13px;color:var(--pink);} .callout ul{margin:0;padding-left:18px;} .callout li{margin:3px 0;}
   .foot{color:var(--muted);font-size:12px;margin-top:8px;}
 </style>
 </head>
 <body>
 <nav class="viewnav">
   <span class="brand">Qubru · commercial-auto data model</span>
-  <a href="index.html" class="active">① Customer Model</a>
+  <a href="index.html" class="active">◆ Unified Schema</a>
+  <a href="customer-model.html">① Customer Model</a>
   <a href="policy-management.html">② Policy Management</a>
   <a href="quoting-applications.html">③ Quoting &amp; Applications</a>
   <a href="claim-management.html">④ Claim Management</a>
   <a href="billing-payments.html">⑤ Billing &amp; Payments</a>
 </nav>
 <header class="top">
-  <h1>Customer Model — Vlocity / FSC (Salesforce source model)</h1>
-  <p>Exact entities and relationships from the Vlocity <b>“Insurance and Financial Services Customer Model” ERD</b> (Sept 2020).
-     Faithful source model — <b>not yet mapped to Qubru</b>. This is the customer / party / holdings backbone the other four views hang off.
-     The two many-to-many junctions (<b>Party Relationship</b>, <b>Account Contact Relationship</b>) are kept as entities, as in the other source views.</p>
+  <h1>Unified Holistic Schema — one model behind all five views</h1>
+  <p>The single combined entity-relationship schema from which all five views (① Customer Model, ② Policy Management, ③ Quoting &amp; Applications, ④ Claim Management, ⑤ Billing &amp; Payments) can be reproduced as projections.
+     Built by deduplicating the <b>77 entity rows</b> and <b>140 relationship rows</b> across the five faithful source views into their distinct underlying objects. The <b>Views</b> column shows where each appears; the five views themselves are unchanged.</p>
   <div class="summary">
-    <span class="pill">14 entities</span>
-    <span class="pill">24 relationships</span>
-    <span class="pill">cardinalities read from the ERD</span>
+    <span class="pill">55 entities</span>
+    <span class="pill">108 relationships</span>
+    <span class="pill">deduped from 77 entity rows · 140 relationship rows</span>
+    <span class="pill">superset of all 5 views</span>
   </div>
 </header>
-
 <main>
-
   <section>
-    <h2>1 · Entities <span class="count">(14 objects)</span></h2>
-    <p class="sub">Each entity with <b>why it's used</b>. The <span class="pk">pink</span> field is the entity's primary key.</p>
+    <h2>1 · Entities <span class="count">(55 canonical objects, grouped by domain)</span></h2>
+    <p class="sub">Each row is one distinct underlying object. The <span class="pk">pink</span> field is its primary key. <b>Views</b> = which of the five views it appears in; where a view labels it differently, that alias is noted under the name.</p>
     <table>
-      <thead><tr><th class="num">#</th><th>Entity</th><th>Why it's used</th><th>Key fields</th><th>Subtypes / record-types</th></tr></thead>
+      <thead><tr><th class="num">#</th><th>Entity</th><th>Why it's used</th><th>Key fields</th><th>Subtypes / record-types</th><th>Views</th></tr></thead>
       <tbody>
-        <tr><td class="num">1</td><td class="ent">Held Product or Service <span class="api">(Asset)</span></td><td class="note">The umbrella for everything a customer holds with you.</td><td><span class="pk">Asset Id</span></td><td class="note">Financial Account (# Account Number, Line of Business); Insurance Policy (# Policy Number, Line of Business, Effective Date, Policy Type, Expiration Date); Provided Service; Other Held Product or Service</td></tr>
-        <tr><td class="num">2</td><td class="ent">Financial Statement <span class="api">(FinancialStatement__c)</span></td><td class="note">A customer's financial statement (KYC / suitability).</td><td><span class="pk">Account or Lead</span>, As Of / Reporting Date, Statement Attributes</td><td class="note">—</td></tr>
-        <tr><td class="num">3</td><td class="ent">Financial Statement Line Item <span class="api">(FinancialStatementLineItem__c)</span></td><td class="note">One line on a financial statement.</td><td><span class="pk">Line Item Id</span>, Name, Description, Amount, Reporting Date, Class, Line Item Attributes</td><td class="note">Reported Income / Expense / Asset / Liability; Other Line Item; Reported Insurable Item</td></tr>
-        <tr><td class="num">4</td><td class="ent">Billing Account <span class="api">(BillingAccount__c)</span></td><td class="note">How a customer is billed.</td><td><span class="pk">Name / Billing Account Number</span>, Billing Frequency, Bill Delivery Method, Billing Address / Email, Is Autopay Enabled, Autopay Amount</td><td class="note">—</td></tr>
-        <tr><td class="num">5</td><td class="ent">Client Payment Method <span class="api">(PaymentMethod__c)</span></td><td class="note">A saved way to pay.</td><td><span class="pk">Nickname</span>, Method Type, Bank Acct Num, Payment Gateway Auth. Token</td><td class="note">—</td></tr>
-        <tr><td class="num">6</td><td class="ent">Non-Held Product <span class="api">(NonHeldProduct__c / NonHeldPolicy__c)</span></td><td class="note">A product / policy the customer holds <b>elsewhere</b> (competitor intel).</td><td><span class="pk">Non-Held Product Id</span>, Expiration Date, Policy Type, Line of Business, Policy Jurisdiction</td><td class="note">—</td></tr>
-        <tr><td class="num">7</td><td class="ent">Insurable Item <span class="api">(InsurableItem__c)</span></td><td class="note">A thing that could be insured but isn't yet (quote-ready).</td><td><span class="pk">Insurable Item Id</span></td><td class="note">—</td></tr>
-        <tr><td class="num">8</td><td class="ent">Party <span class="api">(Party__c)</span></td><td class="note">Any person or organisation — the universal actor.</td><td><span class="pk">Party Id</span></td><td class="note">Person (Contact); Company, Organization or Other Group; Other Party</td></tr>
-        <tr><td class="num">9</td><td class="ent">Party Relationship <span class="api">(PartyRelationship__c)</span></td><td class="note">Junction linking two parties (e.g. spouse, employer).</td><td><span class="pk">Party Relationship Id</span>, Relationship Start Date, Relationship End Date, Is Active?</td><td class="note">—</td></tr>
-        <tr><td class="num">10</td><td class="ent">Party Relationship Type <span class="api">(PartyRelationshipType__c)</span></td><td class="note">The roles / types a party relationship can take.</td><td><span class="pk">Party Relationship Type Id</span>, Source Role, Source Party Type, Target Role, Target Party Type</td><td class="note">—</td></tr>
-        <tr><td class="num">11</td><td class="ent">Profile Attribute <span class="api">(AttributeAssignment__c)</span></td><td class="note">EAV — an attribute value assigned to a party.</td><td><span class="pk">Profile Attribute Id</span>, Profile Value, Date Added / Removed</td><td class="note">—</td></tr>
-        <tr><td class="num">12</td><td class="ent">Attribute <span class="api">(Attribute__c)</span></td><td class="note">The definition of a configurable attribute.</td><td><span class="pk">Code</span>, Name, Display Sequence, Display as Filter?, Configurable?, Is Active?</td><td class="note">—</td></tr>
-        <tr><td class="num">13</td><td class="ent">Account Contact Relationship <span class="api">(AccountContactRelationship)</span></td><td class="note">Junction linking an account to a contact (person).</td><td><span class="pk">ACR Id</span>, Roles, Active, Start / End Date, Is Direct</td><td class="note">—</td></tr>
-        <tr><td class="num">14</td><td class="ent">Account <span class="api">(Account)</span></td><td class="note">The CRM account — the customer record.</td><td><span class="pk">Client Number / Account Id</span>, Name, Status (Prospect/Client), Priority</td><td class="note">Client → Business Client (# Employees, # FTEs), Other Client, Consumer Client; Other Account</td></tr>
+<tr class="group"><td colspan="6">Party &amp; Account backbone</td></tr>
+<tr><td class="num">1</td><td class="ent">Account</td><td class="note">The customer that owns the policy — the fleet company (or a person).</td><td><span class="pk">Client Number / Account Id</span>, Name, Status (Prospect/Client), Priority</td><td class="note">Client → Business/Consumer/Other; Partner (Internal Org) → Agency/Brokerage, Carrier/Writing Company, Other Partner</td><td class="vw">①②③④⑤</td></tr>
+<tr><td class="num">2</td><td class="ent">Party<div class="maps">in views as: Party / Person, Person</div><div class="maps">Person / Contact is its primary record-type — relationships that name "Person" in views ②③④ resolve to Party[Person].</div></td><td class="note">The people involved — adjuster, underwriter, customer contact, driver.</td><td><span class="pk">Contact Id</span>, name</td><td class="note">Partner or Captive or Underwriter; User or Partner User; Non-User Producer; Client or Other Person</td><td class="vw">①②③④⑤</td></tr>
+<tr><td class="num">3</td><td class="ent">Party Relationship</td><td class="note">Junction linking two parties (e.g. spouse, employer).</td><td><span class="pk">Party Relationship Id</span>, Relationship Start Date, Relationship End Date, Is Active?</td><td class="note">—</td><td class="vw">①</td></tr>
+<tr><td class="num">4</td><td class="ent">Party Relationship Type</td><td class="note">The roles / types a party relationship can take.</td><td><span class="pk">Party Relationship Type Id</span>, Source Role, Source Party Type, Target Role, Target Party Type</td><td class="note">—</td><td class="vw">①</td></tr>
+<tr><td class="num">5</td><td class="ent">Account Contact Relationship<div class="maps">the Account ↔ Person junction; view ⑤ draws the same link directly as "a contact for".</div></td><td class="note">Junction linking an account to a contact (person).</td><td><span class="pk">ACR Id</span>, Roles, Active, Start / End Date, Is Direct</td><td class="note">—</td><td class="vw">①</td></tr>
+<tr class="group"><td colspan="6">Holdings &amp; Products</td></tr>
+<tr><td class="num">6</td><td class="ent">Held Product or Service<div class="maps">older Vlocity <code>Asset</code> umbrella; its Insurance Policy / Financial Account record-types become FSC standalone objects in views ②④.</div></td><td class="note">The umbrella for everything a customer holds with you.</td><td><span class="pk">Asset Id</span></td><td class="note">Financial Account (# Account Number, Line of Business); Insurance Policy → Commercial Lines / Personal Lines / Individual Life / Individual Annuity / Other Policy; Provided Service; Other Held Product or Service</td><td class="vw">①⑤</td></tr>
+<tr><td class="num">7</td><td class="ent">Non-Held Product</td><td class="note">A product / policy the customer holds elsewhere (competitor intel).</td><td><span class="pk">Non-Held Product Id</span>, Expiration Date, Policy Type, Line of Business, Policy Jurisdiction</td><td class="note">—</td><td class="vw">①</td></tr>
+<tr><td class="num">8</td><td class="ent">Insurable Item</td><td class="note">A customer&#x27;s property that may need coverage (pre-policy), so quotes can be generated quickly.</td><td><span class="pk">Insurable Item Id</span></td><td class="note">customer property that may be insured</td><td class="vw">①②</td></tr>
+<tr><td class="num">9</td><td class="ent">Insured Item<div class="maps">FSC <code>InsurancePolicyAsset</code>; the on-policy asset (vehicle). Distinct from <b>Insurable Item</b> (not-yet-on-policy) and the older <b>Asset</b> umbrella.</div></td><td class="note">The thing being insured (the vehicle / asset). Lets you attribute premium and loss to a specific item.</td><td><span class="pk">Asset Name</span>, Customer Property, Standard Premium Amount, Term Premium Amount, Attribute Selected Values</td><td class="note">the insured asset (vehicle / property as data)</td><td class="vw">②④</td></tr>
+<tr><td class="num">10</td><td class="ent">Product<div class="maps">in views as: Policy Type / Product</div></td><td class="note">The product the policy is built from; carries the rating and coverage specs.</td><td><span class="pk">Product Code</span>, Name, Eligibility Criteria, Standard Premium, Approved By/Date</td><td class="note">Insurance Product (Effective dates, LoB, Sub Type); Spec → Coverage / Insured Item / Insured Party / Rating Fact</td><td class="vw">②③④</td></tr>
+<tr><td class="num">11</td><td class="ent">Product Spec Relationship</td><td class="note">Links a product to its child products / specs (the product hierarchy — what a product includes).</td><td><span class="pk">Spec Relationship Id</span>, Included or Optional</td><td class="note">product hierarchy junction</td><td class="vw">②③</td></tr>
+<tr><td class="num">12</td><td class="ent">Product Availability</td><td class="note">When / where a product is available to quote.</td><td><span class="pk">Availability Id</span></td><td class="note">—</td><td class="vw">③</td></tr>
+<tr><td class="num">13</td><td class="ent">Insured Item Spec<div class="maps">in views as: Insured Item Spec set</div></td><td class="note">Product-side specs: what coverages and items a product offers — the template a policy instances.</td><td><span class="pk">Spec Id</span>, Spec Type (Coverage / Item / Party / Other)</td><td class="note">product-side coverage &amp; item specifications</td><td class="vw">②</td></tr>
+<tr><td class="num">14</td><td class="ent">Tax and Fee (Price List)</td><td class="note">The taxes &amp; fees that can apply.</td><td><span class="pk">Price List Id</span>, Type, Amount, Rating Type, Refundable</td><td class="note">—</td><td class="vw">③</td></tr>
+<tr><td class="num">15</td><td class="ent">Product Tax and Fee (Price List Entry)</td><td class="note">A specific tax / fee tied to a product.</td><td><span class="pk">Name</span>, Type, Effective From/Until</td><td class="note">—</td><td class="vw">③</td></tr>
+<tr class="group"><td colspan="6">Policy lifecycle</td></tr>
+<tr><td class="num">16</td><td class="ent">Insurance Policy<div class="maps">FSC standalone object; <b>= the Insurance Policy record-type of Held Product or Service (Asset)</b> in the older Customer &amp; Billing views (①⑤).</div></td><td class="note">The insurance contract itself — the central record everything attaches to. Holds term, type, and premium. (Commercial Lines = the commercial-auto case.)</td><td><span class="pk">Policy Name</span>, Policy Type, Original Effective Date, Policy Term, Original Expiration Date, Premium Amount</td><td class="note">Original Insurance Policy → Home, Auto, Individual Life, Individual Annuity, Commercial Lines, Non-Held Product, Other Policy</td><td class="vw">②④</td></tr>
+<tr><td class="num">17</td><td class="ent">Original Insurance Policy</td><td class="note">The baseline policy the current one derives from.</td><td><span class="pk">Policy Name</span></td><td class="note">Individual Life Policy; Auto Policy; Home Policy; Individual Annuity; Other Policy</td><td class="vw">④</td></tr>
+<tr><td class="num">18</td><td class="ent">Altered Insurance Policy Version</td><td class="note">A prior / amended version of a policy, so you can reconstruct what it looked like at a point in time.</td><td><span class="pk">Policy Version Id</span></td><td class="note">a version of / baseline version of a policy</td><td class="vw">②④</td></tr>
+<tr><td class="num">19</td><td class="ent">Policy Coverage</td><td class="note">A specific protection on the policy (liability, collision…) with its limits and premium; defines what is and isn&#x27;t covered.</td><td><span class="pk">Name</span>, Attribute Selected Values, Prorated Premium Amount</td><td class="note">—</td><td class="vw">②④</td></tr>
+<tr><td class="num">20</td><td class="ent">Insurance Policy Participant</td><td class="note">A party&#x27;s role on the policy (owner, driver, beneficiary) and their share of premium.</td><td><span class="pk">Participant Name</span>, Premium Amount, Prorated Premium Amount</td><td class="note">Roles → Beneficiary Role, Driver Role, Owner Role</td><td class="vw">②</td></tr>
+<tr><td class="num">21</td><td class="ent">Insured Policy Member Asset</td><td class="note">Links a participant to an insured item — e.g. which driver is tied to which vehicle.</td><td><span class="pk">Insurance Policy Id</span></td><td class="note">Vehicle Driver, Property Beneficiary</td><td class="vw">②</td></tr>
+<tr><td class="num">22</td><td class="ent">Insurance Policy Surcharge</td><td class="note">An extra charge applied to the policy / coverage / participant (e.g. a risk surcharge); part of pricing.</td><td><span class="pk">Name</span>, Applicable Object Type, Surcharge Amount, Adjustment Type, Refundable</td><td class="note">—</td><td class="vw">②</td></tr>
+<tr><td class="num">23</td><td class="ent">Producer Commission</td><td class="note">The commission paid to the producer / broker for selling the policy.</td><td><span class="pk">Name</span>, Status, Type, Commission Amount</td><td class="note">—</td><td class="vw">②</td></tr>
+<tr><td class="num">24</td><td class="ent">Policy Transaction</td><td class="note">A change event on the policy over time (endorsement, renewal, cancellation) with its premium impact — the lifecycle timeline.</td><td><span class="pk">Transaction Number</span>, Type, TransactionEffectiveDate, TransactionPostedDate, TransactionAmount</td><td class="note">self parent / child</td><td class="vw">②</td></tr>
+<tr><td class="num">25</td><td class="ent">Policy Revenue Schedule Entry</td><td class="note">How premium is earned across the term; the basis for earned-premium and loss-ratio.</td><td><span class="pk">Entry Number</span>, Date, Total Earned Revenue, Revenue Earned in Period</td><td class="note">—</td><td class="vw">②</td></tr>
+<tr><td class="num">26</td><td class="ent">Held Policy Document</td><td class="note">The source document(s) behind the policy (binder, endorsement, inspection) — provenance.</td><td><span class="pk">Document Id</span></td><td class="note">—</td><td class="vw">②</td></tr>
+<tr><td class="num">27</td><td class="ent">Producer</td><td class="note">The agent / broker / agency that sold the policy.</td><td><span class="pk">Producer Identifier</span>, Type</td><td class="note">self parent / child</td><td class="vw">②④</td></tr>
+<tr class="group"><td colspan="6">Quoting &amp; Applications</td></tr>
+<tr><td class="num">28</td><td class="ent">Quote</td><td class="note">The proposed prices / offer presented to the customer before binding.</td><td><span class="pk">Quote Number</span>, Status, Effective Start/End Date</td><td class="note">—</td><td class="vw">③</td></tr>
+<tr><td class="num">29</td><td class="ent">Quoted Insurance<div class="maps">in views as: Quoted Insurance (quote line item)</div></td><td class="note">One thing being quoted on a quote — a coverage, a vehicle, a driver, a policy line.</td><td><span class="pk">Quote Line Id</span>, Quoted Rate</td><td class="note">Quoted Coverage; Quoted Insured Item → Quoted Vehicle/Other; Quoted Insured Party → Quoted Driver/Other; Quoted Policy; Other Quote Item</td><td class="vw">③</td></tr>
+<tr><td class="num">30</td><td class="ent">Quote Item Relationship</td><td class="note">Links quoted line items to each other — which quoted driver drives which quoted vehicle.</td><td><span class="pk">Relationship Id</span></td><td class="note">Quoted Vehicle Driver Relation; Other Quoted Item Relationship</td><td class="vw">③</td></tr>
+<tr><td class="num">31</td><td class="ent">Quote Pricing Adjustment</td><td class="note">A discount or loading applied during quoting.</td><td><span class="pk">Adjustment Name</span>, Adjustment Type</td><td class="note">—</td><td class="vw">③</td></tr>
+<tr><td class="num">32</td><td class="ent">Insurance Application</td><td class="note">The formal application submitted to get insurance.</td><td><span class="pk">Application Number</span>, Content, Submitted Date, Status, Language</td><td class="note">—</td><td class="vw">③</td></tr>
+<tr><td class="num">33</td><td class="ent">Application Form / Template</td><td class="note">The reusable form an application is built from.</td><td><span class="pk">Name</span>, Application Type, Omniscript Name</td><td class="note">—</td><td class="vw">③</td></tr>
+<tr><td class="num">34</td><td class="ent">Opportunity</td><td class="note">The sales opportunity the quote is working.</td><td><span class="pk">Opportunity Id</span></td><td class="note">—</td><td class="vw">③</td></tr>
+<tr class="group"><td colspan="6">Attributes &amp; EAV</td></tr>
+<tr><td class="num">35</td><td class="ent">Attribute</td><td class="note">The definition / metadata of a configurable attribute (its code, name, whether it&#x27;s active or filterable).</td><td><span class="pk">Code</span>, Name, Display Sequence, Display as Filter?, Configurable?, Is Active?</td><td class="note">—</td><td class="vw">①②③</td></tr>
+<tr><td class="num">36</td><td class="ent">Attribute Category</td><td class="note">Groups attributes.</td><td><span class="pk">Code</span>, Name, Description, Applicable Object Types</td><td class="note">—</td><td class="vw">③</td></tr>
+<tr><td class="num">37</td><td class="ent">Profile Attribute</td><td class="note">EAV — an attribute value assigned to a party.</td><td><span class="pk">Profile Attribute Id</span>, Profile Value, Date Added / Removed</td><td class="note">—</td><td class="vw">①</td></tr>
+<tr><td class="num">38</td><td class="ent">Held Product Attribute</td><td class="note">Flexible product / policy attribute values stored as JSON — configurable fields without schema changes.</td><td><span class="pk">Held Attribute Id</span>, value (JSON)</td><td class="note">—</td><td class="vw">②</td></tr>
+<tr><td class="num">39</td><td class="ent">Product or Spec Attribute</td><td class="note">Assigns a rating attribute to a product / spec (the rating inputs / outputs).</td><td><span class="pk">Assignment Id</span>, Default Value, Value Data Type, Is Rating Attribute, Rating Use, Rule</td><td class="note">—</td><td class="vw">③</td></tr>
+<tr><td class="num">40</td><td class="ent">Attribute of Quoted Insurance</td><td class="note">The actual attribute values chosen on a quote line.</td><td><span class="pk">Quoted Value Id</span>, Quoted Value</td><td class="note">—</td><td class="vw">③</td></tr>
+<tr class="group"><td colspan="6">Financial statements</td></tr>
+<tr><td class="num">41</td><td class="ent">Financial Statement</td><td class="note">A customer&#x27;s financial statement (KYC / suitability).</td><td><span class="pk">Account or Lead</span>, As Of / Reporting Date, Statement Attributes</td><td class="note">—</td><td class="vw">①</td></tr>
+<tr><td class="num">42</td><td class="ent">Financial Statement Line Item</td><td class="note">One line on a financial statement.</td><td><span class="pk">Line Item Id</span>, Name, Description, Amount, Reporting Date, Class, Line Item Attributes</td><td class="note">Reported Income / Expense / Asset / Liability; Other Line Item; Reported Insurable Item</td><td class="vw">①</td></tr>
+<tr class="group"><td colspan="6">Billing &amp; Payments</td></tr>
+<tr><td class="num">43</td><td class="ent">Billing Account</td><td class="note">The account a bill is raised against.</td><td><span class="pk">Name / Billing Account Number</span>, Billing Frequency, Bill Delivery Method, Billing Address / Email, Is Autopay Enabled, Autopay Amount</td><td class="note">—</td><td class="vw">①⑤</td></tr>
+<tr><td class="num">44</td><td class="ent">Client Payment Method</td><td class="note">The saved method a payment is made through.</td><td><span class="pk">Nickname</span>, Method Type, Bank Acct Num, Payment Gateway Auth. Token</td><td class="note">—</td><td class="vw">①⑤</td></tr>
+<tr><td class="num">45</td><td class="ent">Statement (Bill)</td><td class="note">A bill issued to the customer for a period.</td><td><span class="pk">Statement Date</span>, Statement Period Start/End Dates, Current Balance, Balance Due, Due Date, Statement Image URL</td><td class="note">—</td><td class="vw">⑤</td></tr>
+<tr><td class="num">46</td><td class="ent">Payment</td><td class="note">An actual payment received — lives outside Salesforce, surfaced via external object / API.</td><td><span class="pk">Payment Identifier</span>, Amount, Currency</td><td class="note">—</td><td class="vw">⑤</td></tr>
+<tr class="group"><td colspan="6">Claims</td></tr>
+<tr><td class="num">47</td><td class="ent">Claim</td><td class="note">The loss / claim record opened against a policy.</td><td><span class="pk">Claim Number</span>, Report Date, Status, Claim Type, Claim Reason Type, Loss Type, Loss Date, Estimated Amount</td><td class="note">—</td><td class="vw">④</td></tr>
+<tr><td class="num">48</td><td class="ent">Claim Item</td><td class="note">One line of the claim — a specific thing being claimed (collision damage, roadside, rental).</td><td><span class="pk">Name</span>, Description, Category</td><td class="note">—</td><td class="vw">④</td></tr>
+<tr><td class="num">49</td><td class="ent">Claim Coverage</td><td class="note">A specific coverage opened on the claim; carries the loss + expense reserve.</td><td><span class="pk">Name</span>, Description, Status, Expense Reserve Amount, Loss Reserve Amount</td><td class="note">—</td><td class="vw">④</td></tr>
+<tr><td class="num">50</td><td class="ent">Claim Coverage Payment Detail</td><td class="note">A payment made out under a claim coverage.</td><td><span class="pk">Name</span>, Type, Status, Claimed Amount, Adjusted Amount</td><td class="note">—</td><td class="vw">④</td></tr>
+<tr><td class="num">51</td><td class="ent">Claim Coverage Payment Adjustment</td><td class="note">A correction / adjustment to a payment.</td><td><span class="pk">Name</span>, Type, Adjustment Reason, Adjustment Amount</td><td class="note">—</td><td class="vw">④</td></tr>
+<tr><td class="num">52</td><td class="ent">Claim Coverage Reserve Detail</td><td class="note">Money set aside (reserved) to pay a future claim under a coverage.</td><td><span class="pk">Name</span>, Type, Status, Amount</td><td class="note">—</td><td class="vw">④</td></tr>
+<tr><td class="num">53</td><td class="ent">Claim Coverage Reserve Adjustment</td><td class="note">A correction / adjustment to a reserve.</td><td><span class="pk">Name</span>, Type, Adjustment Reason, Adjustment Amount</td><td class="note">—</td><td class="vw">④</td></tr>
+<tr><td class="num">54</td><td class="ent">Claim Payment Summary</td><td class="note">The roll-up of all payments made on the claim.</td><td><span class="pk">Name</span>, Payment Identifier, Payment Status, Payment Date</td><td class="note">—</td><td class="vw">④</td></tr>
+<tr><td class="num">55</td><td class="ent">Claim Participant</td><td class="note">A party on the claim, with a role.</td><td><span class="pk">Name</span></td><td class="note">Involved Driver Role; Claimant Role; Claim Adjuster Role; Witness</td><td class="vw">④</td></tr>
       </tbody>
     </table>
   </section>
-
   <section>
-    <h2>2 · Relationships <span class="count">(24 relationships)</span></h2>
-    <p class="sub"><code>A 1:N B</code> = one A, many B. The <b>Relationship</b> column is the verb (the named edge): read it as <code>From · relationship · To</code>. The two junction entities (Party Relationship #15–16, Account Contact Relationship #20–21) are the model's many-to-many links, kept as entities.</p>
+    <h2>2 · Relationships <span class="count">(108 canonical edges, grouped by source domain)</span></h2>
+    <p class="sub"><code>From · relationship · To</code>. Where two views label the same edge differently, both verbs are shown (e.g. "specific to / for coverage of"). <span class="card mn">M:N</span> rows (pink) are junctions. <b>Views</b> = which of the five views the edge appears in.</p>
     <table>
-      <thead><tr><th class="num">#</th><th>From</th><th>Relationship</th><th>Card.</th><th>To</th><th>What it means (plain English)</th></tr></thead>
+      <thead><tr><th class="num">#</th><th>From</th><th>Relationship</th><th>Card.</th><th>To</th><th>What it means (plain English)</th><th>Views</th></tr></thead>
       <tbody>
-        <tr><td class="num">1</td><td>Held Product or Service</td><td class="rel">primarily for</td><td class="card">N:1</td><td>Party</td><td class="meaning">a held product / service is held primarily for one party (the holder).</td></tr>
-        <tr><td class="num">2</td><td>Held Product or Service</td><td class="rel">billed for under</td><td class="card">N:1</td><td>Billing Account</td><td class="meaning">a policy / asset is billed under a billing account.</td></tr>
-        <tr><td class="num">3</td><td>Held Product or Service</td><td class="rel">paid for via</td><td class="card">N:1</td><td>Client Payment Method</td><td class="meaning">an asset is paid for via a payment method.</td></tr>
-        <tr><td class="num">4</td><td>Billing Account</td><td class="rel">primarily for</td><td class="card">N:1</td><td>Account</td><td class="meaning">a billing account belongs primarily to one account.</td></tr>
-        <tr><td class="num">5</td><td>Billing Account</td><td class="rel">paid via</td><td class="card">N:1</td><td>Client Payment Method</td><td class="meaning">a billing account is paid via a payment method.</td></tr>
-        <tr><td class="num">6</td><td>Client Payment Method</td><td class="rel">saved for</td><td class="card">N:1</td><td>Account</td><td class="meaning">a payment method is saved / set up for an account.</td></tr>
-        <tr><td class="num">7</td><td>Person</td><td class="rel">billing contact for</td><td class="card">1:N</td><td>Billing Account</td><td class="meaning">a person is the billing contact for billing accounts.</td></tr>
-        <tr><td class="num">8</td><td>Financial Statement</td><td class="rel">for</td><td class="card">N:1</td><td>Account</td><td class="meaning">a financial statement is for one account.</td></tr>
-        <tr><td class="num">9</td><td>Financial Statement Line Item</td><td class="rel">defined for</td><td class="card">N:1</td><td>Financial Statement</td><td class="meaning">a line item belongs to one statement.</td></tr>
-        <tr><td class="num">10</td><td>Financial Statement Line Item</td><td class="rel">described by</td><td class="card">N:1</td><td>Non-Held Product</td><td class="meaning">a line item can be described by a non-held product.</td></tr>
-        <tr><td class="num">11</td><td>Financial Statement Line Item</td><td class="rel">reported for</td><td class="card">N:1</td><td>Insurable Item</td><td class="meaning">a "reported insurable item" line points to an insurable item.</td></tr>
-        <tr><td class="num">12</td><td>Non-Held Product</td><td class="rel">owned by</td><td class="card">N:1</td><td>Account</td><td class="meaning">a non-held product is owned by an account.</td></tr>
-        <tr><td class="num">13</td><td>Insurable Item</td><td class="rel">subject of</td><td class="card">N:1</td><td>Account</td><td class="meaning">an insurable item belongs to an account.</td></tr>
-        <tr><td class="num">14</td><td>Account</td><td class="rel">parent of / child of</td><td class="card">1:N (self)</td><td>Account</td><td class="meaning">account hierarchy (parent company → subsidiary).</td></tr>
-        <tr class="junction"><td class="num">15</td><td>Party Relationship</td><td class="rel">a party to (from)</td><td class="card">N:1</td><td>Party</td><td class="meaning">the "from" party of the relationship.</td></tr>
-        <tr class="junction"><td class="num">16</td><td>Party Relationship</td><td class="rel">a party to (to)</td><td class="card">N:1</td><td>Party</td><td class="meaning">the "to" party of the relationship.</td></tr>
-        <tr><td class="num">17</td><td>Party Relationship</td><td class="rel">type of</td><td class="card">N:1</td><td>Party Relationship Type</td><td class="meaning">the relationship's roles / type.</td></tr>
-        <tr><td class="num">18</td><td>Profile Attribute</td><td class="rel">tagged on</td><td class="card">N:1</td><td>Party</td><td class="meaning">an attribute value sits on a party.</td></tr>
-        <tr><td class="num">19</td><td>Profile Attribute</td><td class="rel">defined by</td><td class="card">N:1</td><td>Attribute</td><td class="meaning">the attribute definition the value uses.</td></tr>
-        <tr class="junction"><td class="num">20</td><td>Account Contact Relationship</td><td class="rel">for</td><td class="card">N:1</td><td>Account</td><td class="meaning">the account side of the account-contact link.</td></tr>
-        <tr class="junction"><td class="num">21</td><td>Account Contact Relationship</td><td class="rel">of</td><td class="card">N:1</td><td>Person</td><td class="meaning">the person side of the account-contact link.</td></tr>
-        <tr><td class="num">22</td><td>Account</td><td class="rel">considered as</td><td class="card">1:1</td><td>Party</td><td class="meaning">an account is also represented as a party (Account ↔ Party duality).</td></tr>
-        <tr><td class="num">23</td><td>Account (Consumer Client)</td><td class="rel">identified as</td><td class="card">1:1</td><td>Person</td><td class="meaning">a consumer / sole-proprietor account is the same as one person.</td></tr>
-        <tr><td class="num">24</td><td>Held Product or Service</td><td class="rel">provided with</td><td class="card">N:1 (self)</td><td>Held Product or Service</td><td class="meaning">a financial account can be bundled with an insurance policy.</td></tr>
+<tr class="group"><td colspan="7">Party &amp; Account backbone</td></tr>
+<tr><td class="num">1</td><td>Party</td><td class="rel">billing contact for</td><td class="card">1:N</td><td>Billing Account</td><td class="meaning">a person is the billing contact for billing accounts.</td><td class="vw">①⑤</td></tr>
+<tr><td class="num">2</td><td>Account</td><td class="rel">parent of / child of</td><td class="card">1:N (self)</td><td>Account</td><td class="meaning">accounts form a hierarchy (parent company → subsidiary).</td><td class="vw">①②④⑤</td></tr>
+<tr><td class="num">3</td><td>Party Relationship</td><td class="rel">a party to (from) / a party to (to)</td><td class="card">N:1</td><td>Party</td><td class="meaning">the &quot;from&quot; party of the relationship.</td><td class="vw">①</td></tr>
+<tr><td class="num">4</td><td>Party Relationship</td><td class="rel">type of</td><td class="card">N:1</td><td>Party Relationship Type</td><td class="meaning">the relationship&#x27;s roles / type.</td><td class="vw">①</td></tr>
+<tr><td class="num">5</td><td>Account Contact Relationship</td><td class="rel">for</td><td class="card">N:1</td><td>Account</td><td class="meaning">the account side of the account-contact link.</td><td class="vw">①</td></tr>
+<tr><td class="num">6</td><td>Account Contact Relationship</td><td class="rel">of</td><td class="card">N:1</td><td>Party</td><td class="meaning">the person side of the account-contact link.</td><td class="vw">①</td></tr>
+<tr class="junction"><td class="num">7</td><td>Account</td><td class="rel">considered as</td><td class="card mn">1:1 / M:N</td><td>Party</td><td class="meaning">an account is also represented as a party (Account ↔ Party duality).</td><td class="vw">①③④⑤</td></tr>
+<tr><td class="num">8</td><td>Account</td><td class="rel">identified as</td><td class="card">1:1</td><td>Party</td><td class="meaning">a consumer / sole-proprietor account is the same as one person.</td><td class="vw">①②④⑤</td></tr>
+<tr><td class="num">9</td><td>Account</td><td class="rel">primary owner of</td><td class="card">1:N</td><td>Insurance Policy</td><td class="meaning">a customer owns many policies (e.g. the fleet holds its commercial-auto policy).</td><td class="vw">②④</td></tr>
+<tr><td class="num">10</td><td>Account</td><td class="rel">primary owner of</td><td class="card">1:N</td><td>Insurable Item</td><td class="meaning">a customer owns items not yet on a policy (quote-ready).</td><td class="vw">②</td></tr>
+<tr class="junction"><td class="num">11</td><td>Account</td><td class="rel">represented by</td><td class="card mn">M:N / 1:1</td><td>Party</td><td class="meaning">an account is linked to its people (billing contact, signer).</td><td class="vw">②③④</td></tr>
+<tr><td class="num">12</td><td>Account</td><td class="rel">the customer on</td><td class="card">1:N</td><td>Quote</td><td class="meaning">the quote is prepared for this customer</td><td class="vw">③</td></tr>
+<tr><td class="num">13</td><td>Party</td><td class="rel">producer of</td><td class="card">1:N</td><td>Quote</td><td class="meaning">the producer who sold the quote</td><td class="vw">③</td></tr>
+<tr><td class="num">14</td><td>Party</td><td class="rel">underwriter of</td><td class="card">1:N</td><td>Quote</td><td class="meaning">the underwriter assigned to the quote</td><td class="vw">③</td></tr>
+<tr><td class="num">15</td><td>Account</td><td class="rel">provider of</td><td class="card">1:N</td><td>Product</td><td class="meaning">the carrier that provides the product</td><td class="vw">③</td></tr>
+<tr><td class="num">16</td><td>Account</td><td class="rel">seller of</td><td class="card">1:N</td><td>Quote</td><td class="meaning">the brokerage that sells the quote</td><td class="vw">③</td></tr>
+<tr class="junction"><td class="num">17</td><td>Party</td><td class="rel">contact for / a contact for</td><td class="card mn">N:1 / M:N</td><td>Account</td><td class="meaning">a person is a contact for accounts (the ACR link, drawn direct in this view).</td><td class="vw">③⑤</td></tr>
+<tr><td class="num">18</td><td>Account</td><td class="rel">parent of</td><td class="card">1:N (self)</td><td>Account</td><td class="meaning">account / partner-org hierarchy</td><td class="vw">③</td></tr>
+<tr><td class="num">19</td><td>Account</td><td class="rel">writer or administrator of</td><td class="card">1:N</td><td>Insurance Policy</td><td class="meaning">the carrier that writes / administers the policy.</td><td class="vw">④</td></tr>
+<tr class="group"><td colspan="7">Holdings &amp; Products</td></tr>
+<tr><td class="num">20</td><td>Held Product or Service</td><td class="rel">primarily for</td><td class="card">N:1</td><td>Party</td><td class="meaning">a held product / service is held primarily for one party (the holder).</td><td class="vw">①⑤</td></tr>
+<tr><td class="num">21</td><td>Held Product or Service</td><td class="rel">billed for under</td><td class="card">N:1</td><td>Billing Account</td><td class="meaning">a policy / asset is billed under a billing account.</td><td class="vw">①⑤</td></tr>
+<tr><td class="num">22</td><td>Held Product or Service</td><td class="rel">paid for via</td><td class="card">N:1</td><td>Client Payment Method</td><td class="meaning">an asset is paid for via a payment method.</td><td class="vw">①⑤</td></tr>
+<tr><td class="num">23</td><td>Non-Held Product</td><td class="rel">owned by</td><td class="card">N:1</td><td>Account</td><td class="meaning">a non-held product is owned by an account.</td><td class="vw">①</td></tr>
+<tr><td class="num">24</td><td>Insurable Item</td><td class="rel">subject of</td><td class="card">N:1</td><td>Account</td><td class="meaning">an insurable item belongs to an account.</td><td class="vw">①</td></tr>
+<tr><td class="num">25</td><td>Held Product or Service</td><td class="rel">provided with</td><td class="card">N:1 (self)</td><td>Held Product or Service</td><td class="meaning">a financial account can be bundled with an insurance policy.</td><td class="vw">①⑤</td></tr>
+<tr><td class="num">26</td><td>Insured Item</td><td class="rel">specific to</td><td class="card">1:N</td><td>Policy Coverage</td><td class="meaning">a coverage is attached to a specific item (e.g. collision cover on truck #12).</td><td class="vw">②④</td></tr>
+<tr><td class="num">27</td><td>Insured Item</td><td class="rel">primary insured on</td><td class="card">1:N</td><td>Insurance Policy Participant</td><td class="meaning">ties a participant to the item they’re insured on (e.g. the driver of a truck).</td><td class="vw">②</td></tr>
+<tr><td class="num">28</td><td>Product</td><td class="rel">for coverage of</td><td class="card">1:N</td><td>Insurance Policy</td><td class="meaning">many policies are issued from one product (e.g. the “Commercial Auto Fleet” product).</td><td class="vw">②④</td></tr>
+<tr><td class="num">29</td><td>Product</td><td class="rel">described by / describes</td><td class="card">1:N</td><td>Insured Item</td><td class="meaning">an item is described by the product spec it was rated under.</td><td class="vw">②④</td></tr>
+<tr><td class="num">30</td><td>Product</td><td class="rel">made up of</td><td class="card">1:N</td><td>Insured Item Spec</td><td class="meaning">a product is built from its coverage / item / party specs (what it offers).</td><td class="vw">②③④</td></tr>
+<tr class="junction"><td class="num">31</td><td>Product Spec Relationship</td><td class="rel">parent of / child of / bundles</td><td class="card mn">M:N (self) / M:N</td><td>Product ↔ Product</td><td class="meaning">links a product to its child products (e.g. a fleet product bundling sub-coverages).</td><td class="vw">②③</td></tr>
+<tr><td class="num">32</td><td>Product Availability</td><td class="rel">availability of</td><td class="card">N:1</td><td>Product</td><td class="meaning">availability windows of a product</td><td class="vw">③</td></tr>
+<tr><td class="num">33</td><td>Tax and Fee (Price List)</td><td class="rel">parent of</td><td class="card">1:N</td><td>Product Tax and Fee (Price List Entry)</td><td class="meaning">a fee entry belongs to a price list</td><td class="vw">③</td></tr>
+<tr><td class="num">34</td><td>Product</td><td class="rel">fees of</td><td class="card">1:N</td><td>Product Tax and Fee (Price List Entry)</td><td class="meaning">taxes / fees associated with a product</td><td class="vw">③</td></tr>
+<tr class="group"><td colspan="7">Policy lifecycle</td></tr>
+<tr><td class="num">35</td><td>Insurance Policy</td><td class="rel">part of</td><td class="card">1:N</td><td>Insured Item</td><td class="meaning">a policy covers many insured items (e.g. one fleet policy covers 38 trucks).</td><td class="vw">②④</td></tr>
+<tr><td class="num">36</td><td>Insurance Policy</td><td class="rel">specific to / for coverage of</td><td class="card">1:N</td><td>Policy Coverage</td><td class="meaning">a policy carries several coverages (liability, collision, comprehensive).</td><td class="vw">②④</td></tr>
+<tr><td class="num">37</td><td>Insurance Policy</td><td class="rel">subject of</td><td class="card">1:N</td><td>Insurance Policy Participant</td><td class="meaning">a policy has many participants (owner, drivers, beneficiaries).</td><td class="vw">②</td></tr>
+<tr><td class="num">38</td><td>Insurance Policy</td><td class="rel">for</td><td class="card">1:N</td><td>Insurance Policy Surcharge</td><td class="meaning">a policy can carry surcharges (e.g. a high-risk-corridor surcharge).</td><td class="vw">②</td></tr>
+<tr><td class="num">39</td><td>Policy Coverage</td><td class="rel">adjusted for</td><td class="card">1:N</td><td>Insurance Policy Surcharge</td><td class="meaning">a surcharge can apply to one specific coverage.</td><td class="vw">②</td></tr>
+<tr><td class="num">40</td><td>Insurance Policy Participant</td><td class="rel">adjusted for</td><td class="card">1:N</td><td>Insurance Policy Surcharge</td><td class="meaning">a surcharge can apply to one participant (e.g. a young-driver surcharge).</td><td class="vw">②</td></tr>
+<tr><td class="num">41</td><td>Producer</td><td class="rel">for</td><td class="card">1:N</td><td>Producer Commission</td><td class="meaning">a producer earns commission on the policies they sell.</td><td class="vw">②</td></tr>
+<tr><td class="num">42</td><td>Insurance Policy</td><td class="rel">subject of</td><td class="card">1:N</td><td>Producer Commission</td><td class="meaning">each policy generates its commission record(s).</td><td class="vw">②</td></tr>
+<tr><td class="num">43</td><td>Insurance Policy</td><td class="rel">adjustment of</td><td class="card">1:N</td><td>Policy Transaction</td><td class="meaning">a policy accumulates transactions over time (endorsements, renewals, cancellations).</td><td class="vw">②</td></tr>
+<tr><td class="num">44</td><td>Policy Transaction</td><td class="rel">parent of / child of</td><td class="card">1:N (self)</td><td>Policy Transaction</td><td class="meaning">a transaction can amend or reverse an earlier one.</td><td class="vw">②</td></tr>
+<tr><td class="num">45</td><td>Insurance Policy</td><td class="rel">for</td><td class="card">1:N</td><td>Policy Revenue Schedule Entry</td><td class="meaning">premium is earned in scheduled pieces across the term.</td><td class="vw">②</td></tr>
+<tr><td class="num">46</td><td>Policy Transaction</td><td class="rel">subject of</td><td class="card">1:N</td><td>Policy Revenue Schedule Entry</td><td class="meaning">each transaction produces its own earned-revenue schedule.</td><td class="vw">②</td></tr>
+<tr><td class="num">47</td><td>Insurance Policy</td><td class="rel">for</td><td class="card">1:N</td><td>Held Policy Document</td><td class="meaning">a policy has source documents (binder, endorsements, inspection report).</td><td class="vw">②</td></tr>
+<tr class="junction"><td class="num">48</td><td>Insured Policy Member Asset</td><td class="rel">Vehicle Driver (links)</td><td class="card mn">M:N</td><td>Insurance Policy ↔ Insured Item ↔ Participant</td><td class="meaning">links a driver to the vehicle they drive (e.g. Conductor A ↔ truck #12).</td><td class="vw">②</td></tr>
+<tr><td class="num">49</td><td>Producer</td><td class="rel">primarily sold by</td><td class="card">1:N</td><td>Insurance Policy</td><td class="meaning">the producer that sold the policy.</td><td class="vw">②④</td></tr>
+<tr><td class="num">50</td><td>Producer</td><td class="rel">parent of / child of</td><td class="card">1:N (self)</td><td>Producer</td><td class="meaning">producers form a hierarchy (agency → sub-agent).</td><td class="vw">②</td></tr>
+<tr><td class="num">51</td><td>Insurance Policy</td><td class="rel">subject of</td><td class="card">1:N</td><td>Insurable Item</td><td class="meaning">an insurable item can become the subject of a policy.</td><td class="vw">②</td></tr>
+<tr><td class="num">52</td><td>Insurance Policy</td><td class="rel">a version of</td><td class="card">1:N</td><td>Altered Insurance Policy Version</td><td class="meaning">a policy keeps historical versions (what it looked like before each change).</td><td class="vw">②④</td></tr>
+<tr><td class="num">53</td><td>Original Insurance Policy</td><td class="rel">baseline version of</td><td class="card">1:N</td><td>Insurance Policy</td><td class="meaning">the original / base policy the current one derives from.</td><td class="vw">④</td></tr>
+<tr><td class="num">54</td><td>Producer</td><td class="rel">is</td><td class="card">N:1</td><td>Party</td><td class="meaning">a producer is a person.</td><td class="vw">④</td></tr>
+<tr class="group"><td colspan="7">Quoting &amp; Applications</td></tr>
+<tr><td class="num">55</td><td>Quote</td><td class="rel">made up of</td><td class="card">1:N</td><td>Quoted Insurance</td><td class="meaning">quote is built from its line items</td><td class="vw">③</td></tr>
+<tr><td class="num">56</td><td>Quoted Insurance</td><td class="rel">an example of</td><td class="card">N:1</td><td>Product</td><td class="meaning">each line is an instance of a product</td><td class="vw">③</td></tr>
+<tr><td class="num">57</td><td>Opportunity</td><td class="rel">source of</td><td class="card">1:N</td><td>Quote</td><td class="meaning">the quote works a sales opportunity</td><td class="vw">③</td></tr>
+<tr><td class="num">58</td><td>Insurance Application</td><td class="rel">application for</td><td class="card">N:1</td><td>Quote</td><td class="meaning">the application the quote was accepted via</td><td class="vw">③</td></tr>
+<tr><td class="num">59</td><td>Application Form / Template</td><td class="rel">template for</td><td class="card">1:N</td><td>Insurance Application</td><td class="meaning">the form / template an application is built from</td><td class="vw">③</td></tr>
+<tr><td class="num">60</td><td>Insurance Application</td><td class="rel">applicant on</td><td class="card">N:1</td><td>Party</td><td class="meaning">the party / person applying</td><td class="vw">③</td></tr>
+<tr><td class="num">61</td><td>Insurance Application</td><td class="rel">submission for</td><td class="card">N:1</td><td>Opportunity</td><td class="meaning">the application is a submission for the opportunity</td><td class="vw">③</td></tr>
+<tr class="junction"><td class="num">62</td><td>Quote Item Relationship</td><td class="rel">links</td><td class="card mn">M:N</td><td>Quoted Insurance ↔ Quoted Insurance</td><td class="meaning">links quoted items to each other (vehicle ↔ driver)</td><td class="vw">③</td></tr>
+<tr><td class="num">63</td><td>Quote</td><td class="rel">adjusted by</td><td class="card">1:N</td><td>Quote Pricing Adjustment</td><td class="meaning">discount / loading applied to the quote</td><td class="vw">③</td></tr>
+<tr><td class="num">64</td><td>Quoted Insurance</td><td class="rel">covered under</td><td class="card">N:1</td><td>Quoted Policy</td><td class="meaning">a line is covered under a quoted policy</td><td class="vw">③</td></tr>
+<tr><td class="num">65</td><td>Quote</td><td class="rel">for</td><td class="card">N:1</td><td>Opportunity</td><td class="meaning">the quote belongs to an opportunity</td><td class="vw">③</td></tr>
+<tr class="group"><td colspan="7">Attributes &amp; EAV</td></tr>
+<tr><td class="num">66</td><td>Profile Attribute</td><td class="rel">tagged on</td><td class="card">N:1</td><td>Party</td><td class="meaning">an attribute value sits on a party.</td><td class="vw">①</td></tr>
+<tr><td class="num">67</td><td>Profile Attribute</td><td class="rel">defined by</td><td class="card">N:1</td><td>Attribute</td><td class="meaning">the attribute definition the value uses.</td><td class="vw">①</td></tr>
+<tr><td class="num">68</td><td>Attribute</td><td class="rel">defined by</td><td class="card">1:N</td><td>Held Product Attribute</td><td class="meaning">one attribute definition is reused to store many attribute values.</td><td class="vw">②</td></tr>
+<tr><td class="num">69</td><td>Held Product Attribute</td><td class="rel">basis for</td><td class="card">1:N</td><td>Insured Item / Participant / Spec</td><td class="meaning">an attribute value configures an item / participant (e.g. “garaging postcode = 110001”).</td><td class="vw">②</td></tr>
+<tr><td class="num">70</td><td>Product or Spec Attribute</td><td class="rel">rating attribute of</td><td class="card">N:1</td><td>Product</td><td class="meaning">assigns a rating attribute to a product / spec</td><td class="vw">③</td></tr>
+<tr><td class="num">71</td><td>Product or Spec Attribute</td><td class="rel">defined by</td><td class="card">N:1</td><td>Attribute</td><td class="meaning">the attribute definition it is based on</td><td class="vw">③</td></tr>
+<tr><td class="num">72</td><td>Attribute</td><td class="rel">grouped in</td><td class="card">N:1</td><td>Attribute Category</td><td class="meaning">attributes grouped into categories</td><td class="vw">③</td></tr>
+<tr><td class="num">73</td><td>Attribute of Quoted Insurance</td><td class="rel">value on</td><td class="card">N:1</td><td>Quoted Insurance</td><td class="meaning">attribute values captured on a quote line</td><td class="vw">③</td></tr>
+<tr><td class="num">74</td><td>Attribute of Quoted Insurance</td><td class="rel">described by</td><td class="card">N:1</td><td>Product or Spec Attribute</td><td class="meaning">based on the product-attribute definition</td><td class="vw">③</td></tr>
+<tr class="group"><td colspan="7">Financial statements</td></tr>
+<tr><td class="num">75</td><td>Financial Statement</td><td class="rel">for</td><td class="card">N:1</td><td>Account</td><td class="meaning">a financial statement is for one account.</td><td class="vw">①</td></tr>
+<tr><td class="num">76</td><td>Financial Statement Line Item</td><td class="rel">defined for</td><td class="card">N:1</td><td>Financial Statement</td><td class="meaning">a line item belongs to one statement.</td><td class="vw">①</td></tr>
+<tr><td class="num">77</td><td>Financial Statement Line Item</td><td class="rel">described by</td><td class="card">N:1</td><td>Non-Held Product</td><td class="meaning">a line item can be described by a non-held product.</td><td class="vw">①</td></tr>
+<tr><td class="num">78</td><td>Financial Statement Line Item</td><td class="rel">reported for</td><td class="card">N:1</td><td>Insurable Item</td><td class="meaning">a &quot;reported insurable item&quot; line points to an insurable item.</td><td class="vw">①</td></tr>
+<tr class="group"><td colspan="7">Billing &amp; Payments</td></tr>
+<tr><td class="num">79</td><td>Billing Account</td><td class="rel">primarily for</td><td class="card">N:1</td><td>Account</td><td class="meaning">a billing account belongs primarily to one account.</td><td class="vw">①⑤</td></tr>
+<tr><td class="num">80</td><td>Billing Account</td><td class="rel">paid via</td><td class="card">N:1</td><td>Client Payment Method</td><td class="meaning">a billing account is paid via a payment method.</td><td class="vw">①⑤</td></tr>
+<tr><td class="num">81</td><td>Client Payment Method</td><td class="rel">saved for</td><td class="card">N:1</td><td>Account</td><td class="meaning">a payment method is saved / set up for an account.</td><td class="vw">①⑤</td></tr>
+<tr><td class="num">82</td><td>Payment</td><td class="rel">in response to</td><td class="card">N:1</td><td>Statement (Bill)</td><td class="meaning">a payment is made in response to a bill.</td><td class="vw">⑤</td></tr>
+<tr><td class="num">83</td><td>Payment</td><td class="rel">for payment of</td><td class="card">N:1</td><td>Held Product or Service</td><td class="meaning">the policy / asset the payment settles.</td><td class="vw">⑤</td></tr>
+<tr><td class="num">84</td><td>Payment</td><td class="rel">for payment of</td><td class="card">N:1</td><td>Billing Account</td><td class="meaning">the billing account the payment settles.</td><td class="vw">⑤</td></tr>
+<tr><td class="num">85</td><td>Payment</td><td class="rel">paid via</td><td class="card">N:1</td><td>Client Payment Method</td><td class="meaning">the method the payment went through.</td><td class="vw">⑤</td></tr>
+<tr><td class="num">86</td><td>Payment</td><td class="rel">paid by</td><td class="card">N:1</td><td>Party</td><td class="meaning">the payer (a person / org).</td><td class="vw">⑤</td></tr>
+<tr><td class="num">87</td><td>Payment</td><td class="rel">paid on behalf of</td><td class="card">N:1</td><td>Account</td><td class="meaning">the account the payment is made for.</td><td class="vw">⑤</td></tr>
+<tr><td class="num">88</td><td>Statement (Bill)</td><td class="rel">for</td><td class="card">N:1</td><td>Held Product or Service</td><td class="meaning">a bill covers a policy / asset.</td><td class="vw">⑤</td></tr>
+<tr><td class="num">89</td><td>Statement (Bill)</td><td class="rel">for</td><td class="card">N:1</td><td>Billing Account</td><td class="meaning">a bill is raised against a billing account.</td><td class="vw">⑤</td></tr>
+<tr class="group"><td colspan="7">Claims</td></tr>
+<tr><td class="num">90</td><td>Claim</td><td class="rel">made up of</td><td class="card">1:N</td><td>Claim Item</td><td class="meaning">a claim is broken into line items (collision, rental, roadside).</td><td class="vw">④</td></tr>
+<tr><td class="num">91</td><td>Claim Item</td><td class="rel">a claim on</td><td class="card">N:1</td><td>Insured Item</td><td class="meaning">each line is about a specific covered thing (e.g. truck #12).</td><td class="vw">④</td></tr>
+<tr><td class="num">92</td><td>Claim Coverage</td><td class="rel">line claimed on</td><td class="card">N:1</td><td>Claim Item</td><td class="meaning">the coverage being claimed is tied to a claim item.</td><td class="vw">④</td></tr>
+<tr><td class="num">93</td><td>Claim Coverage</td><td class="rel">claims against</td><td class="card">N:1</td><td>Policy Coverage</td><td class="meaning">it draws on a specific coverage in the policy.</td><td class="vw">④</td></tr>
+<tr><td class="num">94</td><td>Claim</td><td class="rel">opens</td><td class="card">1:N</td><td>Claim Coverage</td><td class="meaning">a claim opens the coverages it will pay under.</td><td class="vw">④</td></tr>
+<tr><td class="num">95</td><td>Claim Coverage</td><td class="rel">paid via</td><td class="card">1:N</td><td>Claim Coverage Payment Detail</td><td class="meaning">payments made out under the coverage.</td><td class="vw">④</td></tr>
+<tr><td class="num">96</td><td>Claim Coverage Payment Detail</td><td class="rel">adjusted by</td><td class="card">1:N</td><td>Claim Coverage Payment Adjustment</td><td class="meaning">corrections to a payment.</td><td class="vw">④</td></tr>
+<tr><td class="num">97</td><td>Claim Coverage</td><td class="rel">reserved via</td><td class="card">1:N</td><td>Claim Coverage Reserve Detail</td><td class="meaning">money set aside (reserved) under the coverage.</td><td class="vw">④</td></tr>
+<tr><td class="num">98</td><td>Claim Coverage Reserve Detail</td><td class="rel">adjusted by</td><td class="card">1:N</td><td>Claim Coverage Reserve Adjustment</td><td class="meaning">corrections to a reserve.</td><td class="vw">④</td></tr>
+<tr><td class="num">99</td><td>Claim Coverage Payment Detail</td><td class="rel">paid to</td><td class="card">N:1</td><td>Claim Participant</td><td class="meaning">who received the payment (the recipient).</td><td class="vw">④</td></tr>
+<tr><td class="num">100</td><td>Claim</td><td class="rel">summarized by</td><td class="card">1:N</td><td>Claim Payment Summary</td><td class="meaning">the roll-up of all payments on the claim.</td><td class="vw">④</td></tr>
+<tr><td class="num">101</td><td>Claim Payment Summary</td><td class="rel">payment for</td><td class="card">N:1</td><td>Claim Item</td><td class="meaning">which claim item the payment summary covers.</td><td class="vw">④</td></tr>
+<tr><td class="num">102</td><td>Claim</td><td class="rel">involves</td><td class="card">1:N</td><td>Claim Participant</td><td class="meaning">the people on the claim (driver, claimant, adjuster, witness).</td><td class="vw">④</td></tr>
+<tr><td class="num">103</td><td>Claim Participant</td><td class="rel">is</td><td class="card">N:1</td><td>Account</td><td class="meaning">the participant is an account (org).</td><td class="vw">④</td></tr>
+<tr><td class="num">104</td><td>Claim Participant</td><td class="rel">is</td><td class="card">N:1</td><td>Party</td><td class="meaning">the participant is a person (contact).</td><td class="vw">④</td></tr>
+<tr><td class="num">105</td><td>Claim</td><td class="rel">a claim under</td><td class="card">N:1</td><td>Insurance Policy</td><td class="meaning">the policy the claim is filed against.</td><td class="vw">④</td></tr>
+<tr class="group"><td colspan="7">Other</td></tr>
+<tr><td class="num">106</td><td>Quoted Coverage</td><td class="rel">covers</td><td class="card">N:1</td><td>Quoted Insured Item</td><td class="meaning">a coverage covers an insured item</td><td class="vw">③</td></tr>
+<tr><td class="num">107</td><td>Quoted Coverage</td><td class="rel">names</td><td class="card">N:1</td><td>Quoted Insured Party</td><td class="meaning">a coverage names an insured party</td><td class="vw">③</td></tr>
+<tr><td class="num">108</td><td>Quoted Vehicle</td><td class="rel">primarily used by</td><td class="card">N:1</td><td>Quoted Driver</td><td class="meaning">vehicle primarily used by a driver (also via #11)</td><td class="vw">③</td></tr>
       </tbody>
     </table>
   </section>
-
   <section>
     <div class="callout">
-      <h3>Validation notes</h3>
+      <h3>How this was reconciled (deep-research notes)</h3>
       <ul>
-        <li><b>This is the faithful source model</b> — it keeps the junction objects as entities, exactly like the other three source views. <b>Party Relationship</b> (#15–16) is the Party ↔ Party many-to-many; <b>Account Contact Relationship</b> (#20–21) is the Account ↔ Person many-to-many. (The earlier "graph-native" Customer Model collapsed these into edges and dropped Attribute / Profile Attribute / Party Relationship Type — that version is the Qubru mapping, a separate step.)</li>
-        <li><b>The Account ↔ Party duality is the spine of this view:</b> holdings (Asset) hang off <b>Party</b> (#1), while billing / statements / non-held / insurable items hang off <b>Account</b> (#4, #8, #12, #13); the two are bridged by "considered as" (#22) and "identified as" (#23). Account and Party are the same real-world customer viewed two ways.</li>
-        <li><b>1:1:</b> Account ↔ Party (#22), Account ↔ Person (#23). <b>Self:</b> Account hierarchy (#14), Asset "provided with" (#24).</li>
-        <li><b>Read from the ERD, please confirm:</b> #10 line-item "described by" Non-Held Product; #24 "provided with" (Financial Account ↔ Insurance Policy bundle); the 1:1 reading on #22 / #23.</li>
+        <li><b>Dedup, not redesign.</b> The five views were left untouched. Their 77 entity rows collapse to <b>55 distinct objects</b> and their 140 relationship rows to <b>108 distinct edges</b> — the repeats are the seams where views join (Account, Party, Insurance Policy, Insured Item, Policy Coverage, Product, Billing Account, Client Payment Method, Attribute all recur).</li>
+        <li><b>Endpoint canonicalisation:</b> every "Person / Person (Contact) / Party / Person" resolves to <b>Party</b> (Person is its record-type); all "Account (Client) / Carrier / Writing Company / Agency / Consumer Client" resolve to <b>Account</b>; "Policy Type / Product" resolves to <b>Product</b>.</li>
+        <li><b>Two generations of the policy object</b> are kept distinct on purpose: <b>Held Product or Service (Asset)</b> — the older Vlocity umbrella in views ①⑤ — and <b>Insurance Policy (InsurancePolicy)</b> — the newer FSC standalone object in views ②④. Insurance Policy is the Asset's "Insurance Policy" record-type promoted to a first-class object. Likewise <b>Insurable Item</b> (not-yet-on-policy) vs <b>Insured Item / InsurancePolicyAsset</b> (on-policy) are separate objects.</li>
+        <li><b>Same-edge verb variants merged:</b> e.g. Insurance Policy → Policy Coverage ("specific to" in ② / "for coverage of" in ④) is one edge; Product → Insured Item ("described by" / "describes") is one edge; the Product-bundle junction ("parent of / child of" / "bundles") is one edge.</li>
       </ul>
     </div>
-    <p class="foot">Source: Vlocity “Insurance and Financial Services Customer Model” ERD (Sept 2020). Faithful source model — Qubru mapping is a separate step.</p>
+    <p class="foot">Source: the five faithful Vlocity / Salesforce FSC view models on this site. This page is a derived superset — Qubru graph mapping (junctions → <code>:RELATES</code>, EAV → <code>attributes_json</code>) is a separate step.</p>
   </section>
-
-  <section>
-    <h2>3 · Diagram <span class="count">(rendered from D2 — 14 entities · 24 relationships)</span></h2>
-    <p class="sub">Code-based diagram (D2) of the exact same model in the tables above. Source: <code>2026-06-14-customer-model-faithful.d2</code> · <span style="color:var(--pink);font-weight:700">pink-dashed</span> = the two M:N junction entities (Party Relationship, Account Contact Relationship) · <span style="color:#EC136E;font-weight:700">pink-solid</span> = the Account ↔ Party duality. Party and Account are the twin hubs.</p>
-    <img src="2026-06-14-customer-model-faithful-d2.svg" alt="Customer Model entity-relationship diagram, rendered from D2 — 14 entities and 24 relationships" style="width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff;" />
-  </section>
-
 </main>
 </body>
 </html>
