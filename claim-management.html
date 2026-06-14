@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Claim Management (FSC) — Entities &amp; Relationships</title>
+<style>
+  :root{
+    --navy:#1f2a4a; --ink:#1c2433; --muted:#6b7488;
+    --line:#e3e7ef; --bg:#f6f7fb; --card:#ffffff;
+    --pink:#d6336c; --pink-soft:#fbe6ee; --chip:#eef1f7;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  nav.viewnav{background:#162038;display:flex;gap:4px;padding:9px 30px;flex-wrap:wrap;align-items:center;border-bottom:1px solid rgba(255,255,255,.08);}
+  nav.viewnav .brand{color:#fff;font-weight:700;font-size:12.5px;margin-right:14px;letter-spacing:.02em;}
+  nav.viewnav a{color:#c7cee0;text-decoration:none;font-size:12.5px;font-weight:600;padding:5px 12px;border-radius:999px;}
+  nav.viewnav a:hover{background:rgba(255,255,255,.10);color:#fff;}
+  nav.viewnav a.active{background:#fff;color:#1f2a4a;}
+  header.top{background:var(--navy);color:#fff;padding:22px 30px;}
+  header.top h1{margin:0 0 6px;font-size:20px;font-weight:700;}
+  header.top p{margin:0;font-size:13px;color:#c7cee0;max-width:1040px;}
+  .summary{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+  .pill{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);
+    border-radius:999px;padding:4px 12px;font-size:12px;font-weight:600;}
+  main{max-width:1180px;margin:0 auto;padding:26px 20px 60px;}
+  section{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:20px 22px;margin-bottom:24px;box-shadow:0 1px 2px rgba(20,30,60,.04);}
+  h2{margin:0 0 4px;font-size:16px;color:var(--navy);}
+  h2 .count{color:var(--muted);font-weight:500;font-size:13px;}
+  .sub{margin:0 0 16px;color:var(--muted);font-size:12.5px;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th,td{text-align:left;padding:9px 11px;vertical-align:top;border-bottom:1px solid var(--line);}
+  th{background:#f1f3f9;color:var(--navy);font-weight:700;font-size:11.5px;
+    text-transform:uppercase;letter-spacing:.04em;}
+  tr:last-child td{border-bottom:none;}
+  td.num{color:var(--muted);width:30px;}
+  code{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:12px;}
+  .ent{font-weight:700;color:var(--ink);}
+  .pk{color:var(--pink);font-weight:700}
+  .note{color:var(--muted);font-size:12px}
+  .card{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-weight:700;color:var(--navy);white-space:nowrap;}
+  .card.mn{color:var(--pink);}
+  .rel{font-weight:700;color:#384060;white-space:nowrap;}
+  .meaning{color:var(--ink);font-size:12.5px}
+  tr.junction td{background:#fdf3f7;}
+  tr.group td{background:#eef1f7;color:var(--navy);font-weight:700;font-size:11px;
+    text-transform:uppercase;letter-spacing:.05em;padding:7px 11px;}
+  .callout{background:var(--pink-soft);border:1px solid #f3c6d7;border-radius:10px;padding:14px 16px;font-size:13px;}
+  .callout h3{margin:0 0 8px;font-size:13px;color:var(--pink);}
+  .callout ul{margin:0;padding-left:18px;} .callout li{margin:3px 0;}
+  .foot{color:var(--muted);font-size:12px;margin-top:8px;}
+</style>
+</head>
+<body>
+<nav class="viewnav">
+  <span class="brand">Qubru · commercial-auto data model</span>
+  <a href="index.html">① Customer Model</a>
+  <a href="policy-management.html">② Policy Management</a>
+  <a href="quoting-applications.html">③ Quoting &amp; Applications</a>
+  <a href="claim-management.html" class="active">④ Claim Management</a>
+</nav>
+<header class="top">
+  <h1>Claim Management — FSC (Salesforce source model)</h1>
+  <p>Exact entities and relationships from the Salesforce <b>“Insurance Claim Management with FSC Insurance” ERD</b> (March 2021),
+     the adjuster / claims seat (the loss-and-settlement stage). Faithful source model — <b>not yet mapped to Qubru</b>.
+     The view has a <b>claim-specific core</b> plus the <b>policy-side entities it joins to</b> (the seam it shares with the Policy Management view).</p>
+  <div class="summary">
+    <span class="pill">18 entities</span>
+    <span class="pill">32 relationships</span>
+    <span class="pill">9 claim-core · 9 policy-seam</span>
+    <span class="pill">cardinalities verified vs Salesforce FSC object reference</span>
+  </div>
+</header>
+
+<main>
+
+  <section>
+    <h2>1 · Entities <span class="count">(18 objects — 9 claim-core, 9 policy-seam)</span></h2>
+    <p class="sub">Each entity with <b>why it's used</b>. The <span class="pk">pink</span> field is the entity's primary key.</p>
+    <table>
+      <thead><tr><th class="num">#</th><th>Entity</th><th>Why it's used</th><th>Key fields</th><th>Subtypes / record-types</th></tr></thead>
+      <tbody>
+        <tr class="group"><td colspan="5">Claim core — new in this view</td></tr>
+        <tr><td class="num">1</td><td class="ent">Claim</td><td class="note">The loss / claim record opened against a policy.</td><td><span class="pk">Claim Number</span>, Report Date, Status, Claim Type, Claim Reason Type, Loss Type, Loss Date, Estimated Amount</td><td class="note">—</td></tr>
+        <tr><td class="num">2</td><td class="ent">Claim Item</td><td class="note">One line of the claim — a specific thing being claimed (collision damage, roadside, rental).</td><td><span class="pk">Name</span>, Description, Category</td><td class="note">—</td></tr>
+        <tr><td class="num">3</td><td class="ent">Claim Coverage</td><td class="note">A specific coverage opened on the claim; carries the loss + expense reserve.</td><td><span class="pk">Name</span>, Description, Status, Expense Reserve Amount, Loss Reserve Amount</td><td class="note">—</td></tr>
+        <tr><td class="num">4</td><td class="ent">Claim Coverage Payment Detail</td><td class="note">A payment made out under a claim coverage.</td><td><span class="pk">Name</span>, Type, Status, Claimed Amount, Adjusted Amount</td><td class="note">—</td></tr>
+        <tr><td class="num">5</td><td class="ent">Claim Coverage Payment Adjustment</td><td class="note">A correction / adjustment to a payment.</td><td><span class="pk">Name</span>, Type, Adjustment Reason, Adjustment Amount</td><td class="note">—</td></tr>
+        <tr><td class="num">6</td><td class="ent">Claim Coverage Reserve Detail</td><td class="note">Money set aside (reserved) to pay a future claim under a coverage.</td><td><span class="pk">Name</span>, Type, Status, Amount</td><td class="note">—</td></tr>
+        <tr><td class="num">7</td><td class="ent">Claim Coverage Reserve Adjustment</td><td class="note">A correction / adjustment to a reserve.</td><td><span class="pk">Name</span>, Type, Adjustment Reason, Adjustment Amount</td><td class="note">—</td></tr>
+        <tr><td class="num">8</td><td class="ent">Claim Payment Summary</td><td class="note">The roll-up of all payments made on the claim.</td><td><span class="pk">Name</span>, Payment Identifier, Payment Status, Payment Date</td><td class="note">—</td></tr>
+        <tr><td class="num">9</td><td class="ent">Claim Participant</td><td class="note">A party on the claim, with a role.</td><td><span class="pk">Name</span></td><td class="note">Involved Driver Role; Claimant Role; Claim Adjuster Role; Witness</td></tr>
+        <tr class="group"><td colspan="5">Policy seam — repeated from the policy side, where the claim attaches</td></tr>
+        <tr><td class="num">10</td><td class="ent">Insurance Policy</td><td class="note">The policy the claim is filed under.</td><td><span class="pk">Policy Name</span>, Policy Type, Original Effective Date, Premium Amount, Policy Term, Original Expiration Date</td><td class="note">—</td></tr>
+        <tr><td class="num">11</td><td class="ent">Insured Item</td><td class="note">The covered thing (the vehicle) being claimed against.</td><td><span class="pk">Asset Name</span>, Customer Property, Standard Premium Amount, Term Premium Amount, Attribute Selected Values</td><td class="note">—</td></tr>
+        <tr><td class="num">12</td><td class="ent">Policy Coverage</td><td class="note">The policy coverage a claim coverage claims against.</td><td><span class="pk">Name</span>, Attribute Selected Values, Prorated Premium Amount</td><td class="note">—</td></tr>
+        <tr><td class="num">13</td><td class="ent">Policy Type / Product</td><td class="note">The product the policy is built from, plus its specs.</td><td><span class="pk">Product Code</span>, Name</td><td class="note">Insured Item Spec; Coverage Spec; Insured Party Spec; Other Spec</td></tr>
+        <tr><td class="num">14</td><td class="ent">Original Insurance Policy</td><td class="note">The baseline policy the current one derives from.</td><td><span class="pk">Policy Name</span></td><td class="note">Individual Life Policy; Auto Policy; Home Policy; Individual Annuity; Other Policy</td></tr>
+        <tr><td class="num">15</td><td class="ent">Altered Insurance Policy Version</td><td class="note">A historical version of the policy (what it looked like before a change).</td><td><span class="pk">Version Id</span></td><td class="note">—</td></tr>
+        <tr><td class="num">16</td><td class="ent">Account</td><td class="note">The customer being claimed for, plus partner orgs.</td><td><span class="pk">Account / Client Number</span>, Name</td><td class="note">Partner (Internal Org) → Carrier, Writing Company; Client → Business / Other / Consumer</td></tr>
+        <tr><td class="num">17</td><td class="ent">Producer</td><td class="note">The producer that sold the policy.</td><td><span class="pk">Producer Identifier</span>, Type</td><td class="note">—</td></tr>
+        <tr><td class="num">18</td><td class="ent">Person</td><td class="note">The people involved — adjuster, underwriter, customer contact, driver.</td><td><span class="pk">Contact Id</span>, Name</td><td class="note">Partner or Captive or Underwriter; User or Partner User; Non-User Producer; Client or Other Person</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>2 · Relationships <span class="count">(32 relationships — 16 claim-core, 16 policy-seam)</span></h2>
+    <p class="sub"><code>A 1:N B</code> = one A, many B. The <b>Relationship</b> column is the verb (the named edge): read it as <code>From · relationship · To</code>. <span class="card mn">M:N</span> rows (pink) are junctions.</p>
+    <table>
+      <thead><tr><th class="num">#</th><th>From</th><th>Relationship</th><th>Card.</th><th>To</th><th>What it means (plain English)</th></tr></thead>
+      <tbody>
+        <tr class="group"><td colspan="6">Claim core</td></tr>
+        <tr><td class="num">1</td><td>Claim</td><td class="rel">made up of</td><td class="card">1:N</td><td>Claim Item</td><td class="meaning">a claim is broken into line items (collision, rental, roadside).</td></tr>
+        <tr><td class="num">2</td><td>Claim Item</td><td class="rel">a claim on</td><td class="card">N:1</td><td>Insured Item</td><td class="meaning">each line is about a specific covered thing (e.g. truck #12).</td></tr>
+        <tr><td class="num">3</td><td>Claim Coverage</td><td class="rel">line claimed on</td><td class="card">N:1</td><td>Claim Item</td><td class="meaning">the coverage being claimed is tied to a claim item.</td></tr>
+        <tr><td class="num">4</td><td>Claim Coverage</td><td class="rel">claims against</td><td class="card">N:1</td><td>Policy Coverage</td><td class="meaning">it draws on a specific coverage in the policy.</td></tr>
+        <tr><td class="num">5</td><td>Claim</td><td class="rel">opens</td><td class="card">1:N</td><td>Claim Coverage</td><td class="meaning">a claim opens the coverages it will pay under.</td></tr>
+        <tr><td class="num">6</td><td>Claim Coverage</td><td class="rel">paid via</td><td class="card">1:N</td><td>Claim Coverage Payment Detail</td><td class="meaning">payments made out under the coverage.</td></tr>
+        <tr><td class="num">7</td><td>Claim Coverage Payment Detail</td><td class="rel">adjusted by</td><td class="card">1:N</td><td>Claim Coverage Payment Adjustment</td><td class="meaning">corrections to a payment.</td></tr>
+        <tr><td class="num">8</td><td>Claim Coverage</td><td class="rel">reserved via</td><td class="card">1:N</td><td>Claim Coverage Reserve Detail</td><td class="meaning">money set aside (reserved) under the coverage.</td></tr>
+        <tr><td class="num">9</td><td>Claim Coverage Reserve Detail</td><td class="rel">adjusted by</td><td class="card">1:N</td><td>Claim Coverage Reserve Adjustment</td><td class="meaning">corrections to a reserve.</td></tr>
+        <tr><td class="num">10</td><td>Claim Coverage Payment Detail</td><td class="rel">paid to</td><td class="card">N:1</td><td>Claim Participant</td><td class="meaning">who received the payment (the recipient).</td></tr>
+        <tr><td class="num">11</td><td>Claim</td><td class="rel">summarized by</td><td class="card">1:N</td><td>Claim Payment Summary</td><td class="meaning">the roll-up of all payments on the claim.</td></tr>
+        <tr><td class="num">12</td><td>Claim Payment Summary</td><td class="rel">payment for</td><td class="card">N:1</td><td>Claim Item</td><td class="meaning">which claim item the payment summary covers.</td></tr>
+        <tr><td class="num">13</td><td>Claim</td><td class="rel">involves</td><td class="card">1:N</td><td>Claim Participant</td><td class="meaning">the people on the claim (driver, claimant, adjuster, witness).</td></tr>
+        <tr><td class="num">14</td><td>Claim Participant</td><td class="rel">is</td><td class="card">N:1</td><td>Account</td><td class="meaning">the participant is an account (org).</td></tr>
+        <tr><td class="num">15</td><td>Claim Participant</td><td class="rel">is</td><td class="card">N:1</td><td>Person</td><td class="meaning">the participant is a person (contact).</td></tr>
+        <tr><td class="num">16</td><td>Claim</td><td class="rel">a claim under</td><td class="card">N:1</td><td>Insurance Policy</td><td class="meaning">the policy the claim is filed against.</td></tr>
+        <tr class="group"><td colspan="6">Policy seam — same edges as the Policy Management view</td></tr>
+        <tr><td class="num">17</td><td>Insurance Policy</td><td class="rel">part of</td><td class="card">1:N</td><td>Insured Item</td><td class="meaning">a policy covers many insured items (e.g. a 38-truck fleet).</td></tr>
+        <tr><td class="num">18</td><td>Insured Item</td><td class="rel">specific to</td><td class="card">1:N</td><td>Policy Coverage</td><td class="meaning">a coverage attached to a specific item.</td></tr>
+        <tr><td class="num">19</td><td>Insurance Policy</td><td class="rel">for coverage of</td><td class="card">1:N</td><td>Policy Coverage</td><td class="meaning">the policy's coverages.</td></tr>
+        <tr><td class="num">20</td><td>Policy Type / Product</td><td class="rel">for coverage of</td><td class="card">1:N</td><td>Insurance Policy</td><td class="meaning">many policies are issued from one product.</td></tr>
+        <tr><td class="num">21</td><td>Policy Type / Product</td><td class="rel">made up of</td><td class="card">1:N</td><td>Spec (Item / Coverage / Party)</td><td class="meaning">the product's specs — what it offers.</td></tr>
+        <tr><td class="num">22</td><td>Policy Type / Product</td><td class="rel">describes</td><td class="card">1:N</td><td>Insured Item</td><td class="meaning">the item is rated / described under the product spec.</td></tr>
+        <tr><td class="num">23</td><td>Insurance Policy</td><td class="rel">a version of</td><td class="card">1:N</td><td>Altered Insurance Policy Version</td><td class="meaning">a policy keeps historical versions.</td></tr>
+        <tr><td class="num">24</td><td>Original Insurance Policy</td><td class="rel">baseline version of</td><td class="card">1:N</td><td>Insurance Policy</td><td class="meaning">the original / base policy the current one derives from.</td></tr>
+        <tr><td class="num">25</td><td>Account</td><td class="rel">primary owner of</td><td class="card">1:N</td><td>Insurance Policy</td><td class="meaning">the customer that owns the policy.</td></tr>
+        <tr><td class="num">26</td><td>Account (Carrier / Writing Co.)</td><td class="rel">writer or administrator of</td><td class="card">1:N</td><td>Insurance Policy</td><td class="meaning">the carrier that writes / administers the policy.</td></tr>
+        <tr><td class="num">27</td><td>Producer</td><td class="rel">primarily sold by</td><td class="card">1:N</td><td>Insurance Policy</td><td class="meaning">the producer that sold the policy.</td></tr>
+        <tr><td class="num">28</td><td>Producer</td><td class="rel">is</td><td class="card">N:1</td><td>Person</td><td class="meaning">a producer is a person.</td></tr>
+        <tr><td class="num">29</td><td>Account</td><td class="rel">parent of / child of</td><td class="card">1:N (self)</td><td>Account</td><td class="meaning">account / partner-org hierarchy.</td></tr>
+        <tr class="junction"><td class="num">30</td><td>Account</td><td class="rel">represented by</td><td class="card mn">M:N</td><td>Person</td><td class="meaning">an account is linked to its people (contacts, signers).</td></tr>
+        <tr><td class="num">31</td><td>Account (Client)</td><td class="rel">identified as</td><td class="card">1:1</td><td>Person</td><td class="meaning">a consumer / sole-proprietor account is the same as one person.</td></tr>
+        <tr class="junction"><td class="num">32</td><td>Account</td><td class="rel">considered as</td><td class="card mn">M:N</td><td>Person / Party</td><td class="meaning">an account is also a party (account-party duality).</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <div class="callout">
+      <h3>Validation notes</h3>
+      <ul>
+        <li><b>Claim core vs policy seam.</b> Entities 1–9 and relationships 1–16 are the claim-specific subtree (new in this view). Entities 10–18 and relationships 17–32 are the policy-side entities the claim attaches to — the same objects drawn in the Policy Management view, repeated here as the seam where the two views join.</li>
+        <li><b>Cardinalities verified vs the Salesforce FSC object reference</b>, not eyeballed off the diagram's crow's-feet. <code>ClaimItem</code> hangs off <code>Claim</code> (#1) and references the insured asset (#2); <code>ClaimCoverage</code> attaches to <b>both</b> the claim (#5) and its item (#3) and claims against a <code>InsurancePolicyCoverage</code> (#4).</li>
+        <li><b>M:N junctions (2, pink):</b> Account ↔ Person "represented by" (#30) and the Account ↔ Party duality "considered as" (#32). <b>1:1:</b> Account ↔ Person "identified as" (#31). <b>Self-hierarchy:</b> Account (#29).</li>
+        <li><b>Two payment/owner edges kept distinct:</b> Account "primary owner of" a policy (#25, the customer) vs. Carrier / Writing Company "writer or administrator of" the policy (#26, the carrier).</li>
+      </ul>
+    </div>
+    <p class="foot">Source: Salesforce “Insurance Claim Management with FSC Insurance” ERD (March 2021) + Salesforce FSC object reference (cardinality verification). Faithful source model — Qubru mapping is a separate step.</p>
+  </section>
+
+  <section>
+    <h2>3 · Diagram <span class="count">(rendered from D2 — 18 entities · 32 relationships)</span></h2>
+    <p class="sub">Code-based diagram (D2) of the exact same model in the tables above. Source: <code>2026-06-14-claim-management.d2</code> · <span style="color:var(--pink);font-weight:700">pink-dashed</span> = M:N junctions (Account ↔ Person, #30 &amp; #32). Claim is the hub of the claim core; Insurance Policy is the seam to the policy side.</p>
+    <img src="2026-06-14-claim-management-d2.svg" alt="Claim Management entity-relationship diagram, rendered from D2 — 18 entities and 32 relationships" style="width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff;" />
+  </section>
+
+</main>
+</body>
+</html>
