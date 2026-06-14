@@ -39,6 +39,7 @@
   .note{color:var(--muted);font-size:12px}
   .card{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-weight:700;color:var(--navy);white-space:nowrap;}
   .card.mn{color:var(--pink);}
+  .rel{font-weight:700;color:#384060;white-space:nowrap;}
   .verb{color:var(--ink-soft);font-style:italic;color:#6b7488;}
   tr.junction td{background:#fdf3f7;}
   .callout{background:var(--pink-soft);border:1px solid #f3c6d7;border-radius:10px;padding:14px 16px;font-size:13px;}
@@ -139,43 +140,43 @@
 
   <section>
     <h2>2 · Relationships <span class="count">(31 relationships)</span></h2>
-    <p class="sub"><code>A 1:N B</code> = one A, many B (master-detail child→parent is the “many” side). <span class="card mn">M:N</span> rows (pink) are junction objects. The last column explains each relationship in plain English (the ERD verb is in quotes).</p>
+    <p class="sub"><code>A 1:N B</code> = one A, many B (master-detail child→parent is the “many” side). The <b>Relationship</b> column is the verb (the named edge): read it as <code>From · relationship · To</code>. <span class="card mn">M:N</span> rows (pink) are junction objects.</p>
     <table>
       <thead><tr>
-        <th class="num">#</th><th>From</th><th>Card.</th><th>To</th><th>What it means (plain English)</th>
+        <th class="num">#</th><th>From</th><th>Relationship</th><th>Card.</th><th>To</th><th>What it means (plain English)</th>
       </tr></thead>
       <tbody>
-        <tr><td class="num">1</td><td>Insurance Policy</td><td class="card">1:N</td><td>Insured Item</td><td class="note"><i>“part of”</i> — a policy covers many insured items (e.g. one fleet policy covers 38 trucks).</td></tr>
-        <tr><td class="num">2</td><td>Insurance Policy</td><td class="card">1:N</td><td>Policy Coverage</td><td class="note"><i>“specific to”</i> — a policy carries several coverages (liability, collision, comprehensive).</td></tr>
-        <tr><td class="num">3</td><td>Insured Item</td><td class="card">1:N</td><td>Policy Coverage</td><td class="note"><i>“specific to”</i> — a coverage is attached to a specific item (e.g. collision cover on truck #12).</td></tr>
-        <tr><td class="num">4</td><td>Insurance Policy</td><td class="card">1:N</td><td>Insurance Policy Participant</td><td class="note"><i>“subject of”</i> — a policy has many participants (owner, drivers, beneficiaries).</td></tr>
-        <tr><td class="num">5</td><td>Insured Item</td><td class="card">1:N</td><td>Insurance Policy Participant</td><td class="note"><i>“the primary insured on”</i> — ties a participant to the item they’re insured on (e.g. the driver of a truck).</td></tr>
-        <tr><td class="num">6</td><td>Insurance Policy</td><td class="card">1:N</td><td>Insurance Policy Surcharge</td><td class="note"><i>“for”</i> — a policy can carry surcharges (e.g. a high-risk-corridor surcharge).</td></tr>
-        <tr><td class="num">7</td><td>Policy Coverage</td><td class="card">1:N</td><td>Insurance Policy Surcharge</td><td class="note"><i>“adjusted for”</i> — a surcharge can apply to one specific coverage.</td></tr>
-        <tr><td class="num">8</td><td>Insurance Policy Participant</td><td class="card">1:N</td><td>Insurance Policy Surcharge</td><td class="note"><i>“adjusted for”</i> — a surcharge can apply to one participant (e.g. a young-driver surcharge).</td></tr>
-        <tr><td class="num">9</td><td>Producer</td><td class="card">1:N</td><td>Producer Commission</td><td class="note"><i>“for”</i> — a producer earns commission on the policies they sell.</td></tr>
-        <tr><td class="num">10</td><td>Insurance Policy</td><td class="card">1:N</td><td>Producer Commission</td><td class="note"><i>“subject of”</i> — each policy generates its commission record(s).</td></tr>
-        <tr><td class="num">11</td><td>Insurance Policy</td><td class="card">1:N</td><td>Policy Transaction</td><td class="note"><i>“adjustment of”</i> — a policy accumulates transactions over time (endorsements, renewals, cancellations).</td></tr>
-        <tr><td class="num">12</td><td>Policy Transaction</td><td class="card">1:N (self)</td><td>Policy Transaction</td><td class="note"><i>“parent of / child of”</i> — a transaction can amend or reverse an earlier one.</td></tr>
-        <tr><td class="num">13</td><td>Insurance Policy</td><td class="card">1:N</td><td>Policy Revenue Schedule Entry</td><td class="note"><i>“for”</i> — premium is earned in scheduled pieces across the term.</td></tr>
-        <tr><td class="num">14</td><td>Policy Transaction</td><td class="card">1:N</td><td>Policy Revenue Schedule Entry</td><td class="note"><i>“subject of”</i> — each transaction produces its own earned-revenue schedule.</td></tr>
-        <tr><td class="num">15</td><td>Insurance Policy</td><td class="card">1:N</td><td>Held Policy Document</td><td class="note"><i>“for”</i> — a policy has source documents (binder, endorsements, inspection report).</td></tr>
-        <tr class="junction"><td class="num">16</td><td>Insured Policy Member Asset</td><td class="card mn">M:N</td><td>Insurance Policy ↔ Insured Item ↔ Participant</td><td class="note"><i>“Vehicle Driver”</i> — links a driver to the vehicle they drive (e.g. Conductor A ↔ truck #12).</td></tr>
-        <tr><td class="num">17</td><td>Product</td><td class="card">1:N</td><td>Insurance Policy</td><td class="note"><i>“for coverage of”</i> — many policies are issued from one product (e.g. the “Commercial Auto Fleet” product).</td></tr>
-        <tr><td class="num">18</td><td>Product</td><td class="card">1:N</td><td>Insured Item</td><td class="note"><i>“described by”</i> — an item is described by the product spec it was rated under.</td></tr>
-        <tr><td class="num">19</td><td>Product</td><td class="card">1:N</td><td>Insured Item Spec (Coverage / Item / Party / Other)</td><td class="note"><i>“made up of”</i> — a product is built from its coverage / item / party specs (what it offers).</td></tr>
-        <tr class="junction"><td class="num">20</td><td>Product Spec Relationship</td><td class="card mn">M:N (self)</td><td>Product ↔ Product</td><td class="note"><i>“parent of / child of”</i> — links a product to its child products (e.g. a fleet product bundling sub-coverages).</td></tr>
-        <tr><td class="num">21</td><td>Attribute</td><td class="card">1:N</td><td>Held Product Attribute</td><td class="note"><i>“defined by”</i> — one attribute definition is reused to store many attribute values.</td></tr>
-        <tr><td class="num">22</td><td>Held Product Attribute</td><td class="card">1:N</td><td>Insured Item / Participant / Spec</td><td class="note"><i>“basis for”</i> — an attribute value configures an item / participant (e.g. “garaging postcode = 110001”).</td></tr>
-        <tr><td class="num">23</td><td>Producer</td><td class="card">1:N</td><td>Insurance Policy</td><td class="note"><i>“primarily sold by”</i> — a producer sells many policies.</td></tr>
-        <tr><td class="num">24</td><td>Producer</td><td class="card">1:N (self)</td><td>Producer</td><td class="note"><i>“parent of / child of”</i> — producers form a hierarchy (agency → sub-agent).</td></tr>
-        <tr><td class="num">25</td><td>Account</td><td class="card">1:N</td><td>Insurance Policy</td><td class="note"><i>“primary owner of”</i> — a customer owns many policies (e.g. the fleet holds its commercial-auto policy).</td></tr>
-        <tr><td class="num">26</td><td>Account</td><td class="card">1:N</td><td>Insurable Item</td><td class="note"><i>“primary owner of”</i> — a customer owns items not yet on a policy (quote-ready).</td></tr>
-        <tr><td class="num">27</td><td>Insurance Policy</td><td class="card">1:N</td><td>Insurable Item</td><td class="note"><i>“subject of”</i> — an insurable item can become the subject of a policy.</td></tr>
-        <tr><td class="num">28</td><td>Account</td><td class="card">1:N (self)</td><td>Account</td><td class="note"><i>“parent of / child of”</i> — accounts form a hierarchy (parent company → subsidiary).</td></tr>
-        <tr class="junction"><td class="num">29</td><td>Account</td><td class="card mn">M:N</td><td>Person (Contact)</td><td class="note"><i>“represented by”</i> — an account is linked to its people (billing contact, signer).</td></tr>
-        <tr><td class="num">30</td><td>Insurance Policy</td><td class="card">1:N</td><td>Altered Insurance Policy Version</td><td class="note"><i>“a version of”</i> — a policy keeps historical versions (what it looked like before each change).</td></tr>
-        <tr><td class="num">31</td><td>Client (Account)</td><td class="card">1:1</td><td>Person (Contact)</td><td class="note"><i>“identified as”</i> — a consumer / sole-proprietor account is the same as one person.</td></tr>
+        <tr><td class="num">1</td><td>Insurance Policy</td><td class="rel">part of</td><td class="card">1:N</td><td>Insured Item</td><td class="note">a policy covers many insured items (e.g. one fleet policy covers 38 trucks).</td></tr>
+        <tr><td class="num">2</td><td>Insurance Policy</td><td class="rel">specific to</td><td class="card">1:N</td><td>Policy Coverage</td><td class="note">a policy carries several coverages (liability, collision, comprehensive).</td></tr>
+        <tr><td class="num">3</td><td>Insured Item</td><td class="rel">specific to</td><td class="card">1:N</td><td>Policy Coverage</td><td class="note">a coverage is attached to a specific item (e.g. collision cover on truck #12).</td></tr>
+        <tr><td class="num">4</td><td>Insurance Policy</td><td class="rel">subject of</td><td class="card">1:N</td><td>Insurance Policy Participant</td><td class="note">a policy has many participants (owner, drivers, beneficiaries).</td></tr>
+        <tr><td class="num">5</td><td>Insured Item</td><td class="rel">primary insured on</td><td class="card">1:N</td><td>Insurance Policy Participant</td><td class="note">ties a participant to the item they’re insured on (e.g. the driver of a truck).</td></tr>
+        <tr><td class="num">6</td><td>Insurance Policy</td><td class="rel">for</td><td class="card">1:N</td><td>Insurance Policy Surcharge</td><td class="note">a policy can carry surcharges (e.g. a high-risk-corridor surcharge).</td></tr>
+        <tr><td class="num">7</td><td>Policy Coverage</td><td class="rel">adjusted for</td><td class="card">1:N</td><td>Insurance Policy Surcharge</td><td class="note">a surcharge can apply to one specific coverage.</td></tr>
+        <tr><td class="num">8</td><td>Insurance Policy Participant</td><td class="rel">adjusted for</td><td class="card">1:N</td><td>Insurance Policy Surcharge</td><td class="note">a surcharge can apply to one participant (e.g. a young-driver surcharge).</td></tr>
+        <tr><td class="num">9</td><td>Producer</td><td class="rel">for</td><td class="card">1:N</td><td>Producer Commission</td><td class="note">a producer earns commission on the policies they sell.</td></tr>
+        <tr><td class="num">10</td><td>Insurance Policy</td><td class="rel">subject of</td><td class="card">1:N</td><td>Producer Commission</td><td class="note">each policy generates its commission record(s).</td></tr>
+        <tr><td class="num">11</td><td>Insurance Policy</td><td class="rel">adjustment of</td><td class="card">1:N</td><td>Policy Transaction</td><td class="note">a policy accumulates transactions over time (endorsements, renewals, cancellations).</td></tr>
+        <tr><td class="num">12</td><td>Policy Transaction</td><td class="rel">parent of / child of</td><td class="card">1:N (self)</td><td>Policy Transaction</td><td class="note">a transaction can amend or reverse an earlier one.</td></tr>
+        <tr><td class="num">13</td><td>Insurance Policy</td><td class="rel">for</td><td class="card">1:N</td><td>Policy Revenue Schedule Entry</td><td class="note">premium is earned in scheduled pieces across the term.</td></tr>
+        <tr><td class="num">14</td><td>Policy Transaction</td><td class="rel">subject of</td><td class="card">1:N</td><td>Policy Revenue Schedule Entry</td><td class="note">each transaction produces its own earned-revenue schedule.</td></tr>
+        <tr><td class="num">15</td><td>Insurance Policy</td><td class="rel">for</td><td class="card">1:N</td><td>Held Policy Document</td><td class="note">a policy has source documents (binder, endorsements, inspection report).</td></tr>
+        <tr class="junction"><td class="num">16</td><td>Insured Policy Member Asset</td><td class="rel">Vehicle Driver (links)</td><td class="card mn">M:N</td><td>Insurance Policy ↔ Insured Item ↔ Participant</td><td class="note">links a driver to the vehicle they drive (e.g. Conductor A ↔ truck #12).</td></tr>
+        <tr><td class="num">17</td><td>Product</td><td class="rel">for coverage of</td><td class="card">1:N</td><td>Insurance Policy</td><td class="note">many policies are issued from one product (e.g. the “Commercial Auto Fleet” product).</td></tr>
+        <tr><td class="num">18</td><td>Product</td><td class="rel">described by</td><td class="card">1:N</td><td>Insured Item</td><td class="note">an item is described by the product spec it was rated under.</td></tr>
+        <tr><td class="num">19</td><td>Product</td><td class="rel">made up of</td><td class="card">1:N</td><td>Insured Item Spec (Coverage / Item / Party / Other)</td><td class="note">a product is built from its coverage / item / party specs (what it offers).</td></tr>
+        <tr class="junction"><td class="num">20</td><td>Product Spec Relationship</td><td class="rel">parent of / child of</td><td class="card mn">M:N (self)</td><td>Product ↔ Product</td><td class="note">links a product to its child products (e.g. a fleet product bundling sub-coverages).</td></tr>
+        <tr><td class="num">21</td><td>Attribute</td><td class="rel">defined by</td><td class="card">1:N</td><td>Held Product Attribute</td><td class="note">one attribute definition is reused to store many attribute values.</td></tr>
+        <tr><td class="num">22</td><td>Held Product Attribute</td><td class="rel">basis for</td><td class="card">1:N</td><td>Insured Item / Participant / Spec</td><td class="note">an attribute value configures an item / participant (e.g. “garaging postcode = 110001”).</td></tr>
+        <tr><td class="num">23</td><td>Producer</td><td class="rel">primarily sold by</td><td class="card">1:N</td><td>Insurance Policy</td><td class="note">a producer sells many policies.</td></tr>
+        <tr><td class="num">24</td><td>Producer</td><td class="rel">parent of / child of</td><td class="card">1:N (self)</td><td>Producer</td><td class="note">producers form a hierarchy (agency → sub-agent).</td></tr>
+        <tr><td class="num">25</td><td>Account</td><td class="rel">primary owner of</td><td class="card">1:N</td><td>Insurance Policy</td><td class="note">a customer owns many policies (e.g. the fleet holds its commercial-auto policy).</td></tr>
+        <tr><td class="num">26</td><td>Account</td><td class="rel">primary owner of</td><td class="card">1:N</td><td>Insurable Item</td><td class="note">a customer owns items not yet on a policy (quote-ready).</td></tr>
+        <tr><td class="num">27</td><td>Insurance Policy</td><td class="rel">subject of</td><td class="card">1:N</td><td>Insurable Item</td><td class="note">an insurable item can become the subject of a policy.</td></tr>
+        <tr><td class="num">28</td><td>Account</td><td class="rel">parent of / child of</td><td class="card">1:N (self)</td><td>Account</td><td class="note">accounts form a hierarchy (parent company → subsidiary).</td></tr>
+        <tr class="junction"><td class="num">29</td><td>Account</td><td class="rel">represented by</td><td class="card mn">M:N</td><td>Person (Contact)</td><td class="note">an account is linked to its people (billing contact, signer).</td></tr>
+        <tr><td class="num">30</td><td>Insurance Policy</td><td class="rel">a version of</td><td class="card">1:N</td><td>Altered Insurance Policy Version</td><td class="note">a policy keeps historical versions (what it looked like before each change).</td></tr>
+        <tr><td class="num">31</td><td>Client (Account)</td><td class="rel">identified as</td><td class="card">1:1</td><td>Person (Contact)</td><td class="note">a consumer / sole-proprietor account is the same as one person.</td></tr>
       </tbody>
     </table>
   </section>

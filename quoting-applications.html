@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quoting &amp; Applications (FSC) — Entities &amp; Relationships</title>
+<style>
+  :root{
+    --navy:#1f2a4a; --ink:#1c2433; --muted:#6b7488;
+    --line:#e3e7ef; --bg:#f6f7fb; --card:#ffffff;
+    --pink:#d6336c; --pink-soft:#fbe6ee; --chip:#eef1f7;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  header.top{background:var(--navy);color:#fff;padding:22px 30px;}
+  header.top h1{margin:0 0 6px;font-size:20px;font-weight:700;}
+  header.top p{margin:0;font-size:13px;color:#c7cee0;max-width:1040px;}
+  .summary{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+  .pill{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);
+    border-radius:999px;padding:4px 12px;font-size:12px;font-weight:600;}
+  main{max-width:1180px;margin:0 auto;padding:26px 20px 60px;}
+  section{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:20px 22px;margin-bottom:24px;box-shadow:0 1px 2px rgba(20,30,60,.04);}
+  h2{margin:0 0 4px;font-size:16px;color:var(--navy);}
+  h2 .count{color:var(--muted);font-weight:500;font-size:13px;}
+  .sub{margin:0 0 16px;color:var(--muted);font-size:12.5px;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th,td{text-align:left;padding:9px 11px;vertical-align:top;border-bottom:1px solid var(--line);}
+  th{background:#f1f3f9;color:var(--navy);font-weight:700;font-size:11.5px;
+    text-transform:uppercase;letter-spacing:.04em;}
+  tr:last-child td{border-bottom:none;}
+  td.num{color:var(--muted);width:30px;}
+  code{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:12px;}
+  .ent{font-weight:700;color:var(--ink);}
+  .pk{color:var(--pink);font-weight:700}
+  .note{color:var(--muted);font-size:12px}
+  .card{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-weight:700;color:var(--navy);white-space:nowrap;}
+  .card.mn{color:var(--pink);}
+  .meaning{color:var(--ink);font-size:12.5px}
+  .meaning i{color:#586074}
+  .rel{font-weight:700;color:#384060;white-space:nowrap;}
+  .src{display:inline-block;margin-left:4px;font-size:9.5px;font-weight:700;letter-spacing:.03em;
+    border-radius:4px;padding:0 5px;vertical-align:1px;}
+  .src.pdf{background:#e4f3ec;color:#1f7a52;border:1px solid #bfe3d0;}
+  .src.std{background:#eef1f7;color:#586074;border:1px solid #d8dEe9;}
+  .src.q{background:#f3ecfb;color:#6b3fae;border:1px solid #ddccef;}
+  .fix{color:var(--pink);font-weight:700;font-size:11px;}
+  tr.junction td{background:#fdf3f7;}
+  .callout{background:var(--pink-soft);border:1px solid #f3c6d7;border-radius:10px;padding:14px 16px;font-size:13px;}
+  .callout h3{margin:0 0 8px;font-size:13px;color:var(--pink);}
+  .callout ul{margin:0;padding-left:18px;} .callout li{margin:3px 0;}
+  .foot{color:var(--muted);font-size:12px;margin-top:8px;}
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>Quoting &amp; Applications — FSC (Salesforce source model)</h1>
+  <p>Exact entities and relationships from the Salesforce <b>“Insurance Quoting and Applications” ERD</b> (Sept 2020),
+     the producer / broker / underwriter seat (the negotiation-and-bind stage). Faithful source model — <b>not yet mapped to Qubru</b>.
+     Cardinalities are <b>verified</b>: <span class="src pdf">PDF</span> = master-detail / many-to-many stated verbatim in the Vlocity object list ·
+     <span class="src std">STD</span> = standard Salesforce lookup · <span class="src q">Q-LINE</span> = within the one <code>QuoteLineItem</code> object's record-types.</p>
+  <div class="summary">
+    <span class="pill">18 entities</span>
+    <span class="pill">33 relationships</span>
+    <span class="pill">cardinalities verified vs Vlocity object list</span>
+  </div>
+</header>
+
+<main>
+
+  <section>
+    <h2>1 · Entities <span class="count">(18 objects)</span></h2>
+    <p class="sub">Each entity with <b>why it's used</b>. The <span class="pk">pink</span> field is the entity's primary key.</p>
+    <table>
+      <thead><tr><th class="num">#</th><th>Entity</th><th>Why it's used</th><th>Key fields</th><th>Subtypes</th></tr></thead>
+      <tbody>
+        <tr><td class="num">1</td><td class="ent">Quote</td><td class="note">The proposed prices / offer presented to the customer before binding.</td><td><span class="pk">Quote Number</span>, Status, Effective Start/End Date</td><td class="note">—</td></tr>
+        <tr><td class="num">2</td><td class="ent">Quoted Insurance <span class="note">(quote line item)</span></td><td class="note">One thing being quoted on a quote — a coverage, a vehicle, a driver, a policy line.</td><td><span class="pk">Quote Line Id</span>, Quoted Rate</td><td class="note">Quoted Coverage; Quoted Insured Item → <b>Quoted Vehicle</b>/Other; Quoted Insured Party → <b>Quoted Driver</b>/Other; Quoted Policy; Other Quote Item</td></tr>
+        <tr><td class="num">3</td><td class="ent">Quote Item Relationship</td><td class="note">Links quoted line items to each other — which quoted driver drives which quoted vehicle.</td><td><span class="pk">Relationship Id</span></td><td class="note">Quoted Vehicle Driver Relation; Other Quoted Item Relationship</td></tr>
+        <tr><td class="num">4</td><td class="ent">Quote Pricing Adjustment</td><td class="note">A discount or loading applied during quoting.</td><td><span class="pk">Adjustment Name</span>, Adjustment Type</td><td class="note">—</td></tr>
+        <tr><td class="num">5</td><td class="ent">Insurance Application</td><td class="note">The formal application submitted to get insurance.</td><td><span class="pk">Application Number</span>, Content, Submitted Date, Status, Language</td><td class="note">—</td></tr>
+        <tr><td class="num">6</td><td class="ent">Application Form / Template</td><td class="note">The reusable form an application is built from.</td><td><span class="pk">Name</span>, Application Type, Omniscript Name</td><td class="note">—</td></tr>
+        <tr><td class="num">7</td><td class="ent">Opportunity</td><td class="note">The sales opportunity the quote is working.</td><td><span class="pk">Opportunity Id</span></td><td class="note">—</td></tr>
+        <tr><td class="num">8</td><td class="ent">Product</td><td class="note">The product being quoted; carries eligibility + rating.</td><td><span class="pk">Product Code</span>, Name, Eligibility Criteria, Standard Premium, Approved By/Date</td><td class="note">Insurance Product (Effective dates, LoB, Sub Type); Spec → Coverage / Insured Item / Insured Party / Rating Fact</td></tr>
+        <tr><td class="num">9</td><td class="ent">Product Availability</td><td class="note">When / where a product is available to quote.</td><td><span class="pk">Availability Id</span></td><td class="note">—</td></tr>
+        <tr><td class="num">10</td><td class="ent">Product Spec Relationship</td><td class="note">Links a product to its child products / specs (bundles, optional add-ons).</td><td><span class="pk">Spec Relationship Id</span>, Included or Optional</td><td class="note">—</td></tr>
+        <tr><td class="num">11</td><td class="ent">Product or Spec Attribute</td><td class="note">Assigns a rating attribute to a product / spec (the rating inputs / outputs).</td><td><span class="pk">Assignment Id</span>, Default Value, Value Data Type, Is Rating Attribute, Rating Use, Rule</td><td class="note">—</td></tr>
+        <tr><td class="num">12</td><td class="ent">Attribute of Quoted Insurance</td><td class="note">The actual attribute values chosen on a quote line.</td><td><span class="pk">Quoted Value Id</span>, Quoted Value</td><td class="note">—</td></tr>
+        <tr><td class="num">13</td><td class="ent">Attribute</td><td class="note">The definition of a configurable / rating attribute.</td><td><span class="pk">Code</span>, Name, Display Sequence, Configurable?, Is Active?</td><td class="note">—</td></tr>
+        <tr><td class="num">14</td><td class="ent">Attribute Category</td><td class="note">Groups attributes.</td><td><span class="pk">Code</span>, Name, Description, Applicable Object Types</td><td class="note">—</td></tr>
+        <tr><td class="num">15</td><td class="ent">Tax and Fee <span class="note">(Price List)</span></td><td class="note">The taxes &amp; fees that can apply.</td><td><span class="pk">Price List Id</span>, Type, Amount, Rating Type, Refundable</td><td class="note">—</td></tr>
+        <tr><td class="num">16</td><td class="ent">Product Tax and Fee <span class="note">(Price List Entry)</span></td><td class="note">A specific tax / fee tied to a product.</td><td><span class="pk">Name</span>, Type, Effective From/Until</td><td class="note">—</td></tr>
+        <tr><td class="num">17</td><td class="ent">Account</td><td class="note">The customer being quoted, plus partner orgs.</td><td><span class="pk">Account/Client Number</span>, Name</td><td class="note">Client → Business/Consumer/Other; Partner (Internal Org) → Agency/Brokerage, Carrier/Writing Company, Other Partner</td></tr>
+        <tr><td class="num">18</td><td class="ent">Party / Person</td><td class="note">The people &amp; orgs involved — producer, underwriter, customer contact.</td><td><span class="pk">Contact Id</span>, Name</td><td class="note">Person → Producer or Underwriter (User/Non-User), Customer Contact; Company/Org; Other Party</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>2 · Relationships <span class="count">(33 relationships)</span></h2>
+    <p class="sub"><code>A 1:N B</code> = one A, many B. The <b>Relationship</b> column is the verb (the named edge): read it as <code>From · relationship · To</code>. <span class="card mn">M:N</span> rows (pink) are junctions. Source tag shows how each cardinality was verified.</p>
+    <table>
+      <thead><tr><th class="num">#</th><th>From</th><th>Relationship</th><th>Card.</th><th>To</th><th>What it means</th></tr></thead>
+      <tbody>
+        <tr><td class="num">1</td><td>Quote</td><td class="rel">made up of</td><td class="card">1:N</td><td>Quoted Insurance</td><td class="meaning">quote is built from its line items <span class="src pdf">PDF</span></td></tr>
+        <tr><td class="num">2</td><td>Quoted Insurance</td><td class="rel">an example of</td><td class="card">N:1</td><td>Product</td><td class="meaning">each line is an instance of a product <span class="src std">STD</span></td></tr>
+        <tr><td class="num">3</td><td>Account</td><td class="rel">the customer on</td><td class="card">1:N</td><td>Quote</td><td class="meaning">the quote is prepared for this customer <span class="src std">STD</span></td></tr>
+        <tr><td class="num">4</td><td>Person (Producer)</td><td class="rel">producer of</td><td class="card">1:N</td><td>Quote</td><td class="meaning">the producer who sold the quote <span class="src std">STD</span></td></tr>
+        <tr><td class="num">5</td><td>Person (Underwriter)</td><td class="rel">underwriter of</td><td class="card">1:N</td><td>Quote</td><td class="meaning">the underwriter assigned to the quote <span class="src std">STD</span></td></tr>
+        <tr><td class="num">6</td><td>Opportunity</td><td class="rel">source of</td><td class="card">1:N</td><td>Quote</td><td class="meaning">the quote works a sales opportunity <span class="src std">STD</span></td></tr>
+        <tr><td class="num">7</td><td>Insurance Application</td><td class="rel">application for</td><td class="card">N:1</td><td>Quote</td><td class="meaning">the application the quote was accepted via <span class="src std">STD</span></td></tr>
+        <tr><td class="num">8</td><td>Application Form / Template</td><td class="rel">template for</td><td class="card">1:N</td><td>Insurance Application</td><td class="meaning">the form / template an application is built from <span class="src std">STD</span></td></tr>
+        <tr><td class="num">9</td><td>Insurance Application</td><td class="rel">applicant on</td><td class="card">N:1</td><td>Party / Person</td><td class="meaning">the party / person applying <span class="src std">STD</span> <span class="fix">(refined)</span></td></tr>
+        <tr><td class="num">10</td><td>Insurance Application</td><td class="rel">submission for</td><td class="card">N:1</td><td>Opportunity</td><td class="meaning">the application is a submission for the opportunity <span class="src std">STD</span></td></tr>
+        <tr class="junction"><td class="num">11</td><td>Quote Item Relationship</td><td class="rel">links</td><td class="card mn">M:N</td><td>Quoted Insurance ↔ Quoted Insurance</td><td class="meaning">links quoted items to each other (vehicle ↔ driver) <span class="src pdf">PDF</span></td></tr>
+        <tr><td class="num">12</td><td>Quote</td><td class="rel">adjusted by</td><td class="card">1:N</td><td>Quote Pricing Adjustment</td><td class="meaning">discount / loading applied to the quote <span class="src pdf">PDF</span> <span class="fix">(corrected)</span></td></tr>
+        <tr><td class="num">13</td><td>Product</td><td class="rel">made up of</td><td class="card">1:N</td><td>Spec (Coverage / Item / Party / Rating Fact)</td><td class="meaning">a product is built from its specs <span class="src pdf">PDF</span></td></tr>
+        <tr class="junction"><td class="num">14</td><td>Product Spec Relationship</td><td class="rel">bundles</td><td class="card mn">M:N</td><td>Product ↔ Product / Spec</td><td class="meaning">product bundles / child specs <span class="src pdf">PDF</span></td></tr>
+        <tr><td class="num">15</td><td>Product Availability</td><td class="rel">availability of</td><td class="card">N:1</td><td>Product</td><td class="meaning">availability windows of a product <span class="src std">STD</span></td></tr>
+        <tr><td class="num">16</td><td>Product or Spec Attribute</td><td class="rel">rating attribute of</td><td class="card">N:1</td><td>Product</td><td class="meaning">assigns a rating attribute to a product / spec <span class="src pdf">PDF</span></td></tr>
+        <tr><td class="num">17</td><td>Product or Spec Attribute</td><td class="rel">defined by</td><td class="card">N:1</td><td>Attribute</td><td class="meaning">the attribute definition it is based on <span class="src std">STD</span></td></tr>
+        <tr><td class="num">18</td><td>Attribute</td><td class="rel">grouped in</td><td class="card">N:1</td><td>Attribute Category</td><td class="meaning">attributes grouped into categories <span class="src std">STD</span></td></tr>
+        <tr><td class="num">19</td><td>Attribute of Quoted Insurance</td><td class="rel">value on</td><td class="card">N:1</td><td>Quoted Insurance</td><td class="meaning">attribute values captured on a quote line <span class="src std">STD</span></td></tr>
+        <tr><td class="num">20</td><td>Attribute of Quoted Insurance</td><td class="rel">described by</td><td class="card">N:1</td><td>Product or Spec Attribute</td><td class="meaning">based on the product-attribute definition <span class="src std">STD</span></td></tr>
+        <tr><td class="num">21</td><td>Tax and Fee (Price List)</td><td class="rel">parent of</td><td class="card">1:N</td><td>Product Tax and Fee (Price List Entry)</td><td class="meaning">a fee entry belongs to a price list <span class="src pdf">PDF</span></td></tr>
+        <tr><td class="num">22</td><td>Product</td><td class="rel">fees of</td><td class="card">1:N</td><td>Product Tax and Fee (Price List Entry)</td><td class="meaning">taxes / fees associated with a product <span class="src pdf">PDF</span></td></tr>
+        <tr><td class="num">23</td><td>Carrier / Writing Company (Partner Account)</td><td class="rel">provider of</td><td class="card">1:N</td><td>Product</td><td class="meaning">the carrier that provides the product <span class="src std">STD</span></td></tr>
+        <tr><td class="num">24</td><td>Agency / Brokerage (Partner Account)</td><td class="rel">seller of</td><td class="card">1:N</td><td>Quote</td><td class="meaning">the brokerage that sells the quote <span class="src std">STD</span></td></tr>
+        <tr><td class="num">25</td><td>Account (Client)</td><td class="rel">represented by</td><td class="card">1:1</td><td>Person</td><td class="meaning">B2C identity — a client account is one person <span class="src std">STD</span></td></tr>
+        <tr><td class="num">26</td><td>Person</td><td class="rel">contact for</td><td class="card">N:1</td><td>Account</td><td class="meaning">a contact for the account <span class="src std">STD</span></td></tr>
+        <tr class="junction"><td class="num">27</td><td>Account</td><td class="rel">considered as</td><td class="card mn">M:N</td><td>Party</td><td class="meaning">an account is also a party <span class="src std">STD</span></td></tr>
+        <tr><td class="num">28</td><td>Account</td><td class="rel">parent of</td><td class="card">1:N (self)</td><td>Account</td><td class="meaning">account / partner-org hierarchy <span class="src std">STD</span> <span class="fix">(added)</span></td></tr>
+        <tr><td class="num">29</td><td>Quoted Coverage</td><td class="rel">covers</td><td class="card">N:1</td><td>Quoted Insured Item</td><td class="meaning">a coverage covers an insured item <span class="src q">Q-LINE</span></td></tr>
+        <tr><td class="num">30</td><td>Quoted Coverage</td><td class="rel">names</td><td class="card">N:1</td><td>Quoted Insured Party</td><td class="meaning">a coverage names an insured party <span class="src q">Q-LINE</span></td></tr>
+        <tr><td class="num">31</td><td>Quoted Vehicle</td><td class="rel">primarily used by</td><td class="card">N:1</td><td>Quoted Driver</td><td class="meaning">vehicle primarily used by a driver (also via #11) <span class="src q">Q-LINE</span></td></tr>
+        <tr><td class="num">32</td><td>Quoted Insurance (lines)</td><td class="rel">covered under</td><td class="card">N:1</td><td>Quoted Policy</td><td class="meaning">a line is covered under a quoted policy <span class="src q">Q-LINE</span></td></tr>
+        <tr><td class="num">33</td><td>Quote</td><td class="rel">for</td><td class="card">N:1</td><td>Opportunity</td><td class="meaning">the quote belongs to an opportunity <span class="src std">STD</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <div class="callout">
+      <h3>Validation notes</h3>
+      <ul>
+        <li><b>Cardinalities are source-verified, not eyeballed.</b> <span class="src pdf">PDF</span> = master-detail / many-to-many stated verbatim in the Vlocity object list (e.g. Quote Pricing Adjustment is "Master-detail child object of Quote"; Quote Item Relationship "tracks many-to-many relationships between quote line items"). <span class="src std">STD</span> = standard Salesforce lookup. <span class="src q">Q-LINE</span> = relationships among record-types of the single <code>QuoteLineItem</code> object.</li>
+        <li><b>M:N junctions (3, pink):</b> Quote Item Relationship (#11), Product Spec Relationship (#14), Account ↔ Party (#27). <b>1:1:</b> Account ↔ Person (#25). <b>Self-hierarchy:</b> Account (#28).</li>
+        <li><b>Corrections from the rigorous pass:</b> #12 Quote Pricing Adjustment is master-detail to <i>Quote</i> (not the line item); #9 applicant refined to Party/Person; Account self-hierarchy (#28) added; the earlier "Product applied for via" and "Price List self-loop" flags were resolved as duplicates of #2 and #21 respectively.</li>
+      </ul>
+    </div>
+    <p class="foot">Source: Salesforce “Insurance Quoting and Applications” ERD (Sept 2020) + Vlocity Insurance &amp; Financial Services Object List (cardinality verification). Faithful source model — Qubru mapping is a separate step.</p>
+  </section>
+
+  <section>
+    <h2>3 · Diagram <span class="count">(rendered from D2 — 18 entities · 33 relationships)</span></h2>
+    <p class="sub">Code-based diagram (D2) of the exact same model in the tables above. Source: <code>2026-06-14-quoting-applications.d2</code> · <span style="color:var(--pink);font-weight:700">pink-dashed</span> = M:N junction objects (#11, #14, #27) · <span style="color:#6b3fae;font-weight:700">purple-dashed</span> = Q-LINE record-type relationships, drawn as self-loops on Quoted Insurance (#29–32). Quote is the hub.</p>
+    <img src="2026-06-14-quoting-applications-d2.svg" alt="Quoting and Applications entity-relationship diagram, rendered from D2 — 18 entities and 33 relationships" style="width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff;" />
+  </section>
+
+</main>
+</body>
+</html>
