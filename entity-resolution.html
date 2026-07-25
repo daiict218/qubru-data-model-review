@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Entity Resolution — resolution key &amp; fallback for all 44 entities</title>
+<style>
+  :root{--navy:#1f2a4a;--ink:#1c2433;--muted:#6b7488;--line:#e3e7ef;--bg:#f6f7fb;--card:#fff;
+    --pink:#d6336c;--pink-soft:#fbe6ee;--green:#1f7a52;--green-soft:#e4f3ec;
+    --amber:#8a6100;--amber-soft:#fdf1d8;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  nav.viewnav{background:#162038;display:flex;gap:4px;padding:9px 30px;flex-wrap:wrap;align-items:center;border-bottom:1px solid rgba(255,255,255,.08);}
+  nav.viewnav .brand{color:#fff;font-weight:700;font-size:12.5px;margin-right:14px;letter-spacing:.02em;}
+  nav.viewnav a{color:#c7cee0;text-decoration:none;font-size:12.5px;font-weight:600;padding:5px 12px;border-radius:999px;}
+  nav.viewnav a:hover{background:rgba(255,255,255,.10);color:#fff;}
+  nav.viewnav a.active{background:#fff;color:#1f2a4a;}
+  header.top{background:var(--navy);color:#fff;padding:22px 30px;}
+  header.top h1{margin:0 0 6px;font-size:20px;font-weight:700;}
+  header.top p{margin:0 0 4px;font-size:13px;color:#c7cee0;max-width:1080px;}
+  .summary{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+  .pill{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:4px 12px;font-size:12px;font-weight:600;}
+  main{max-width:1240px;margin:0 auto;padding:26px 20px 60px;}
+  section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin-bottom:24px;box-shadow:0 1px 2px rgba(20,30,60,.04);}
+  h2{margin:0 0 4px;font-size:16px;color:var(--navy);} h2 .count{color:var(--muted);font-weight:500;font-size:13px;}
+  .sub{margin:0 0 16px;color:var(--muted);font-size:12.5px;max-width:105ch;}
+  .tablewrap{width:100%;overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th,td{text-align:left;padding:9px 11px;vertical-align:top;border-bottom:1px solid var(--line);}
+  th{background:#f1f3f9;color:var(--navy);font-weight:700;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;position:sticky;top:0;}
+  tr:last-child td{border-bottom:none;}
+  code{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:12px;}
+  .ent{font-weight:700;color:var(--ink);}
+  .dom{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:10.5px;color:var(--muted);background:#f1f3f9;border-radius:3px;padding:1px 4px;}
+  code.pk{color:var(--green);font-weight:700;background:var(--green-soft);border-radius:3px;padding:2px 5px;display:inline-block;}
+  code.fb{color:var(--amber);font-weight:600;background:var(--amber-soft);border-radius:3px;padding:2px 5px;display:inline-block;}
+  .nil{color:var(--muted);font-style:italic;font-size:12px;}
+  .strat{font-weight:600;color:#384060;font-size:12.5px;}
+  .note{color:var(--muted);font-size:12px;line-height:1.45;}
+  tr.grouprow td{background:#eef1f8;border-top:2px solid var(--navy);border-bottom:1px solid var(--line);padding:10px 11px;}
+  .gtag{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:11px;font-weight:700;color:#fff;background:var(--navy);border-radius:3px;padding:2px 7px;margin-right:6px;}
+  .gdesc{color:var(--muted);font-size:12px;font-weight:400;display:block;margin-top:3px;}
+  .legend{display:flex;gap:20px;flex-wrap:wrap;margin:0 0 14px;font-size:12.5px;color:var(--muted);align-items:center;}
+  .keybox{background:#f8f9fd;border:1px solid var(--line);border-left:3px solid var(--navy);border-radius:8px;padding:14px 16px;margin:0 0 20px;}
+  .keybox h3{margin:0 0 6px;font-size:13.5px;color:var(--navy);}
+  .keybox ol{margin:0;padding-left:20px;font-size:12.5px;color:var(--ink);}
+  .keybox li{margin-bottom:5px;}
+  footer{max-width:1240px;margin:0 auto;padding:0 20px 40px;color:var(--muted);font-size:12px;}
+</style>
+</head>
+<body>
+<nav class="viewnav">
+  <span class="brand">Qubru &middot; commercial-auto data model</span>
+  <a href="index.html">&#9670; Unified Schema</a>
+  <a href="customer-model.html">&#9312; Customer Model</a>
+  <a href="policy-management.html">&#9313; Policy Management</a>
+  <a href="quoting-applications.html">&#9314; Quoting &amp; Applications</a>
+  <a href="claim-management.html">&#9315; Claim Management</a>
+  <a href="billing-payments.html">&#9316; Billing &amp; Payments</a>
+  <a href="entity-resolution.html" class="active">&#9672; Entity Resolution</a>
+</nav>
+<header class="top">
+  <h1>Entity Resolution — the resolution key and fallback for all 44 entities</h1>
+  <p>How the pipeline must recognise that an entity already exists <b>before creating it</b>. Companion to Data Model v3.1.</p>
+  <p><b>Universal rule.</b> Before creating any node: (1) compute its resolution key from the extracted data; (2) look up an existing node with that key; (3) if found &rarr; reuse it and attach the new evidence; (4) if not found &rarr; create.</p>
+  <div class="summary">
+    <span class="pill">44 entities</span>
+    <span class="pill">6 strategy groups</span>
+    <span class="pill">22 have a fallback</span>
+    <span class="pill">6 never deduplicate</span>
+  </div>
+</header>
+<main>
+  <section>
+    <h2>How to read this table</h2>
+    <div class="keybox">
+      <ol>
+        <li><b>Resolution key</b> (green) &mdash; the field combination that answers &ldquo;does it already exist?&rdquo;. This is what the pipeline looks up first. Fields joined by <code>+</code> must <b>all</b> match; alternatives are separated by <code>or</code>.</li>
+        <li><b>Fallback</b> (amber) &mdash; what to use when the resolution key is <b>absent from the document</b> (for example a medical report with no registration number). A fallback fires on absence, not on disagreement.</li>
+        <li><b>Strategy</b> &mdash; the deduplication pattern to implement. Six patterns cover all 44 entities.</li>
+      </ol>
+    </div>
+    <div class="legend">
+      <span><code class="pk">green</code> resolution key</span>
+      <span><code class="fb">amber</code> fallback</span>
+      <span><span class="dom">D1</span> source domain in v3.1</span>
+    </div>
+    <p class="sub"><b>Highest priority:</b> Policy (by <code>policy_number</code>) and Claim (by <code>claim_number</code>) are the graph anchors. If they do not resolve, the N documents of one case create N policies and claims, and the graph fragments.</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Entity</th><th>Resolution key</th><th>Fallback</th><th>Strategy</th><th>Implementation note</th></tr></thead>
+        <tbody><tr class="grouprow"><td colspan="5">
+          <span class="gtag">Group 1</span> <b>Strong natural key</b>
+          <span class="gdesc">Have a unique number or code in the document. Resolve by that identifier before creating. Highest priority — they anchor the graph.</span></td></tr><tr>
+      <td><span class="ent">Broker</span> <span class="dom">D1</span></td>
+      <td><code class="pk">(broker_code) or (license_number)</code></td>
+      <td><code class="fb">party_id</code></td>
+      <td class="strat">Resolve by natural key</td>
+      <td class="note">Internal code or regulatory license. Link to its Party.</td></tr><tr>
+      <td><span class="ent">Claim</span> <span class="dom">D6</span></td>
+      <td><code class="pk">claim_number</code></td>
+      <td><code class="fb">(policy_id + loss_date + insured_item_id)</code></td>
+      <td class="strat">Resolve by natural key</td>
+      <td class="note">claim_number is unique. The N documents of one claim (FNOL, peritaje, settlement) must all resolve to the same Claim. HIGHEST PRIORITY.</td></tr><tr>
+      <td><span class="ent">Coverage</span> <span class="dom">D2</span></td>
+      <td><code class="pk">(product_version_id + coverage_code)</code></td>
+      <td><code class="fb">(product_version_id + name)</code></td>
+      <td class="strat">Resolve by natural key</td>
+      <td class="note">coverage_code unique within version (TPL, PD, THEFT, PI).</td></tr><tr>
+      <td><span class="ent">Endorsement</span> <span class="dom">D5</span></td>
+      <td><code class="pk">endorsement_number</code></td>
+      <td><code class="fb">(policy_txn_id)</code></td>
+      <td class="strat">Resolve by natural key</td>
+      <td class="note">Carrier-assigned endorsement number.</td></tr><tr>
+      <td><span class="ent">Policy</span> <span class="dom">D5</span></td>
+      <td><code class="pk">policy_number</code></td>
+      <td><code class="fb">(account_id + inception_date + product_version_id)</code></td>
+      <td class="strat">Resolve by natural key</td>
+      <td class="note">policy_number is unique (already declared in the model). Anchors the whole lifecycle — if unresolved, every document fragments the graph. HIGHEST PRIORITY.</td></tr><tr>
+      <td><span class="ent">Product</span> <span class="dom">D2</span></td>
+      <td><code class="pk">product_code</code></td>
+      <td><code class="fb">(name + jurisdiction)</code></td>
+      <td class="strat">Resolve by natural key</td>
+      <td class="note">product_code unique (e.g. AUTO-CO). Master data — few, stable instances.</td></tr><tr>
+      <td><span class="ent">ProductVersion</span> <span class="dom">D2</span></td>
+      <td><code class="pk">(product_id + version_code)</code></td>
+      <td><code class="fb">(product_id + effective_from)</code></td>
+      <td class="strat">Resolve by natural key</td>
+      <td class="note">version_code unique within product (e.g. 2024.1).</td></tr><tr>
+      <td><span class="ent">Quote</span> <span class="dom">D4</span></td>
+      <td><code class="pk">quote_number</code></td>
+      <td><code class="fb">(submission_id + quote_type + quoted_premium)</code></td>
+      <td class="strat">Resolve by natural key</td>
+      <td class="note">Quote has its own number. Distinguish revisions (R1, R2) by quote_type.</td></tr><tr>
+      <td><span class="ent">RatingMatrix</span> <span class="dom">D2</span></td>
+      <td><code class="pk">matrix_code</code></td>
+      <td><code class="fb">(product_version_id + effective_from)</code></td>
+      <td class="strat">Resolve by natural key</td>
+      <td class="note">Matrix code (e.g. RM-AUTO-CO-2024.1).</td></tr><tr>
+      <td><span class="ent">RegulatorRequest</span> <span class="dom">D9</span></td>
+      <td><code class="pk">reference_number</code></td>
+      <td><code class="fb">(authority + received_date + subject)</code></td>
+      <td class="strat">Resolve by natural key</td>
+      <td class="note">The oficio has a number (e.g. 2025-0342-DSF).</td></tr><tr>
+      <td><span class="ent">UWRuleset</span> <span class="dom">D2</span></td>
+      <td><code class="pk">ruleset_code</code></td>
+      <td><code class="fb">(product_version_id)</code></td>
+      <td class="strat">Resolve by natural key</td>
+      <td class="note">Ruleset code (e.g. UW-2024.1).</td></tr><tr class="grouprow"><td colspan="5">
+          <span class="gtag">Group 2</span> <b>Natural key with context</b>
+          <span class="gdesc">Own identifier but needs a fallback (normalized name / parent) when the ID is absent from the document.</span></td></tr><tr>
+      <td><span class="ent">Actor</span> <span class="dom">D1</span></td>
+      <td><code class="pk">party_id (humans) or (actor_kind + model + role) for agents</code></td>
+      <td><code class="fb">normalized display_name</code></td>
+      <td class="strat">Resolve via Party</td>
+      <td class="note">A human Actor resolves by its Party (party_id). Do NOT create independent Actor and Party — link them. Repeated advisors must resolve to the same Actor.</td></tr><tr>
+      <td><span class="ent">InsuredItem</span> <span class="dom">D5</span></td>
+      <td><code class="pk">type-conditional (see note)</code></td>
+      <td><code class="fb">(policy_id + item_number) or (policy_id + item_description)</code></td>
+      <td class="strat">Resolve by natural key</td>
+      <td class="note">Key depends on item_type — see the LOB note below. For vehicle : vin (globally unique). For property : registry/cadastral ID. For equipment : serial number. For cargo : shipment ref. item_number (&#x27;7 of 14&#x27;) is NOT unique across policies.</td></tr><tr>
+      <td><span class="ent">Party</span> <span class="dom">D1</span></td>
+      <td><code class="pk">(country + id_type + id_number)</code></td>
+      <td><code class="fb">normalized legal_name + country (alias table)</code></td>
+      <td class="strat">Composite key + alias fallback</td>
+      <td class="note">THE CRITICAL CASE. NIT/Cédula is the key. The model already declares &#x27;unique within id_type+country&#x27; but it isn&#x27;t enforced. Documents with no ID → resolve by normalized name. Use merged_into_party_id to merge already-created duplicates.</td></tr><tr class="grouprow"><td colspan="5">
+          <span class="gtag">Group 3</span> <b>Resolve by parent + type</b>
+          <span class="gdesc">No own number. Identified by whom they belong to plus their type. Composite key.</span></td></tr><tr>
+      <td><span class="ent">Account</span> <span class="dom">D1</span></td>
+      <td><code class="pk">(party_id + product_line)</code></td>
+      <td><code class="fb">(party_id) para cuenta única</code></td>
+      <td class="strat">Resolve by parent</td>
+      <td class="note">An organization has one commercial account per line. Resolved via its Party.</td></tr><tr>
+      <td><span class="ent">ClaimCoverage</span> <span class="dom">D6</span></td>
+      <td><code class="pk">(claim_id + policy_coverage_id)</code></td>
+      <td><span class="nil">none</span></td>
+      <td class="strat">Resolve by parent</td>
+      <td class="note">A claim affects each coverage once.</td></tr><tr>
+      <td><span class="ent">ClaimInvolvement</span> <span class="dom">D6</span></td>
+      <td><code class="pk">(claim_id + party_id + involvement_type)</code></td>
+      <td><span class="nil">none</span></td>
+      <td class="strat">Resolve by parent</td>
+      <td class="note">Juan as driver in claim X, once. involvement_type distinguishes roles (same party could be driver then witness — different cases).</td></tr><tr>
+      <td><span class="ent">ClaimItem</span> <span class="dom">D6</span></td>
+      <td><code class="pk">(claim_id + insured_item_id)</code></td>
+      <td><code class="fb">(claim_id + damage_description)</code></td>
+      <td class="strat">Resolve by parent</td>
+      <td class="note">Damage to one item in a claim, once.</td></tr><tr>
+      <td><span class="ent">CommissionSchedule</span> <span class="dom">D2</span></td>
+      <td><code class="pk">(broker_id + product_version_id)</code></td>
+      <td><span class="nil">none</span></td>
+      <td class="strat">Resolve by parent</td>
+      <td class="note">One commission schedule per broker per version.</td></tr><tr>
+      <td><span class="ent">Container</span> <span class="dom">D3</span></td>
+      <td><code class="pk">(kind + product_id + jurisdiction)</code></td>
+      <td><span class="nil">none</span></td>
+      <td class="strat">Resolve by parent</td>
+      <td class="note">Few containers, stable. Master container per deployment.</td></tr><tr>
+      <td><span class="ent">Exposure</span> <span class="dom">D5</span></td>
+      <td><code class="pk">(policy_id + insured_item_id + period_start)</code></td>
+      <td><span class="nil">none</span></td>
+      <td class="strat">Resolve by parent</td>
+      <td class="note">Temporal measurement — one per item per period.</td></tr><tr>
+      <td><span class="ent">Insured</span> <span class="dom">D1</span></td>
+      <td><code class="pk">party_id</code></td>
+      <td><span class="nil">none</span></td>
+      <td class="strat">Resolve by parent</td>
+      <td class="note">The insured role resolves by Party. Don&#x27;t create a new Insured if the Party already has one.</td></tr><tr>
+      <td><span class="ent">PartyRelationship</span> <span class="dom">D1</span></td>
+      <td><code class="pk">(from_party_id + to_party_id + relationship_type)</code></td>
+      <td><span class="nil">none</span></td>
+      <td class="strat">Resolve by parent</td>
+      <td class="note">One typed relationship between two parties, once.</td></tr><tr>
+      <td><span class="ent">PolicyCoverage</span> <span class="dom">D5</span></td>
+      <td><code class="pk">(policy_id + coverage_id)</code></td>
+      <td><span class="nil">none</span></td>
+      <td class="strat">Resolve by parent</td>
+      <td class="note">The theft coverage of policy X exists exactly once.</td></tr><tr>
+      <td><span class="ent">PolicyTransaction</span> <span class="dom">D5</span></td>
+      <td><code class="pk">(policy_id + txn_type + effective_date)</code></td>
+      <td><span class="nil">none</span></td>
+      <td class="strat">Resolve by parent</td>
+      <td class="note">One transaction per type per effective date.</td></tr><tr>
+      <td><span class="ent">RetentionSchedule</span> <span class="dom">D9</span></td>
+      <td><code class="pk">(jurisdiction + doc_type + product_id)</code></td>
+      <td><span class="nil">none</span></td>
+      <td class="strat">Resolve by parent</td>
+      <td class="note">Retention rule per jurisdiction+type. Few, stable.</td></tr><tr>
+      <td><span class="ent">Submission</span> <span class="dom">D4</span></td>
+      <td><code class="pk">(account_id + product_id + submitted_date)</code></td>
+      <td><code class="fb">(broker_id + insured_id + effective_date_requested)</code></td>
+      <td class="strat">Resolve by composite key</td>
+      <td class="note">One submission per quoting attempt. Distinguish remarkets/renewals by submitted_date. NOTE: don&#x27;t confuse the Quote with the Submission — saw cases of Quote classified as Submission.</td></tr><tr class="grouprow"><td colspan="5">
+          <span class="gtag">Group 4</span> <b>Event-like</b>
+          <span class="gdesc">Dated events. High risk of duplicating the same event from different documents. Signature = type + date.</span></td></tr><tr>
+      <td><span class="ent">ClaimEvent</span> <span class="dom">D6</span></td>
+      <td><code class="pk">(claim_id + event_type + event_date)</code></td>
+      <td><code class="fb">(claim_id + event_type + document_reference)</code></td>
+      <td class="strat">Resolve by event signature</td>
+      <td class="note">HIGH duplication risk: the same peritaje mentioned in 2 documents must NOT create 2 events. Date+type is the signature. (Seen in tests: &#x27;Peritaje completado&#x27; x3).</td></tr><tr>
+      <td><span class="ent">EvidencePackage</span> <span class="dom">D9</span></td>
+      <td><code class="pk">(claim_id o policy_id + regulator_request_id)</code></td>
+      <td><span class="nil">none</span></td>
+      <td class="strat">Resolve by event signature</td>
+      <td class="note">One package per request/decision.</td></tr><tr>
+      <td><span class="ent">Payment</span> <span class="dom">D6</span></td>
+      <td><code class="pk">(settlement_id + paid_to_party_id + amount + payment_date)</code></td>
+      <td><code class="fb">payment_reference</code></td>
+      <td class="strat">Resolve by event signature</td>
+      <td class="note">If payment_reference exists (transaction number) use it as strong key. DECISION: historical loss-run payments (prior insurer) should NOT be materialized as Payments.</td></tr><tr>
+      <td><span class="ent">Reserve</span> <span class="dom">D6</span></td>
+      <td><code class="pk">(claim_id + claim_coverage_id + reserve_date + reserve_type)</code></td>
+      <td><span class="nil">none</span></td>
+      <td class="strat">Temporal — no dedup across dates</td>
+      <td class="note">CAUTION: reserves are temporal BY DESIGN. Each adjustment on a different date is a LEGITIMATE new record — do NOT deduplicate across dates. Only avoid creating the same-date reserve twice.</td></tr><tr>
+      <td><span class="ent">ReviewCase</span> <span class="dom">D9</span></td>
+      <td><code class="pk">(artifact_id + case_type + related_*_id)</code></td>
+      <td><span class="nil">none</span></td>
+      <td class="strat">Resolve by event signature</td>
+      <td class="note">One review case per reviewed item.</td></tr><tr>
+      <td><span class="ent">Settlement</span> <span class="dom">D6</span></td>
+      <td><code class="pk">(claim_id + claim_coverage_id + settlement_type + settled_amount)</code></td>
+      <td><code class="fb">(claim_id + settlement_date)</code></td>
+      <td class="strat">Resolve by event signature</td>
+      <td class="note">One agreement per coverage. Distinguish partial settlements by type.</td></tr><tr class="grouprow"><td colspan="5">
+          <span class="gtag">Group 5</span> <b>Content-hash dedup</b>
+          <span class="gdesc">Already supported in the model via content_hash. Same file → same node. Just activate it.</span></td></tr><tr>
+      <td><span class="ent">Artifact</span> <span class="dom">D7</span></td>
+      <td><code class="pk">content_hash (SHA-256)</code></td>
+      <td><code class="fb">(original_filename + file_size_bytes)</code></td>
+      <td class="strat">Resolve by content hash</td>
+      <td class="note">ELEGANT AND ALREADY IN THE MODEL: the same PDF uploaded twice has an identical hash → same Artifact. Just USE it.</td></tr><tr>
+      <td><span class="ent">ReferenceDocument</span> <span class="dom">D3</span></td>
+      <td><code class="pk">content_hash (SHA-256)</code></td>
+      <td><code class="fb">(doc_type + version_label + title)</code></td>
+      <td class="strat">Resolve by content hash</td>
+      <td class="note">Same hash → same reference document. NOTE: don&#x27;t confuse submission attachments with ReferenceDocuments (seen in tests).</td></tr><tr class="grouprow"><td colspan="5">
+          <span class="gtag">Group 6</span> <b>Do not deduplicate / special rule</b>
+          <span class="gdesc">Each instance is unique by nature (signals, provenance, audit) or has its own rule (one active per parent).</span></td></tr><tr>
+      <td><span class="ent">AgentOutput</span> <span class="dom">D8</span></td>
+      <td><span class="nil">no key — always create</span></td>
+      <td><span class="nil">none</span></td>
+      <td class="strat">No dedup — always create</td>
+      <td class="note">Each agent run produces a new output. The temporality is the value.</td></tr><tr>
+      <td><span class="ent">AuditEntry</span> <span class="dom">D9</span></td>
+      <td><span class="nil">no key — always create</span></td>
+      <td><span class="nil">none</span></td>
+      <td class="strat">No dedup — always create</td>
+      <td class="note">Each human/system action is a unique audit record.</td></tr><tr>
+      <td><span class="ent">DatasetResolution</span> <span class="dom">D7</span></td>
+      <td><code class="pk">(artifact_id) última vigente</code></td>
+      <td><span class="nil">none</span></td>
+      <td class="strat">One active per artifact</td>
+      <td class="note">One active resolution per artifact.</td></tr><tr>
+      <td><span class="ent">DocumentClassification</span> <span class="dom">D7</span></td>
+      <td><code class="pk">(artifact_id) última vigente</code></td>
+      <td><span class="nil">none</span></td>
+      <td class="strat">One active per artifact</td>
+      <td class="note">One active classification per artifact; re-classifications mark the previous one as superseded.</td></tr><tr>
+      <td><span class="ent">Pattern</span> <span class="dom">D8</span></td>
+      <td><span class="nil">no key — always create</span></td>
+      <td><span class="nil">none</span></td>
+      <td class="strat">No dedup — always create</td>
+      <td class="note">Each detection is a finding with its sample_n and date.</td></tr><tr>
+      <td><span class="ent">PatternMember</span> <span class="dom">D8</span></td>
+      <td><code class="pk">(pattern_id + member_id)</code></td>
+      <td><span class="nil">none</span></td>
+      <td class="strat">Resolve by parent</td>
+      <td class="note">Avoid listing the same member twice in a pattern.</td></tr><tr>
+      <td><span class="ent">ProvenanceNode</span> <span class="dom">D9</span></td>
+      <td><span class="nil">no key — always create</span></td>
+      <td><span class="nil">none</span></td>
+      <td class="strat">No dedup — always create</td>
+      <td class="note">Each knowledge operation generates its own receipt. Never deduplicate.</td></tr><tr>
+      <td><span class="ent">Recommendation</span> <span class="dom">D8</span></td>
+      <td><span class="nil">no key — always create</span></td>
+      <td><span class="nil">none</span></td>
+      <td class="strat">No dedup — always create</td>
+      <td class="note">Each recommendation is unique.</td></tr><tr>
+      <td><span class="ent">Signal</span> <span class="dom">D7</span></td>
+      <td><span class="nil">no key — always create</span></td>
+      <td><span class="nil">none</span></td>
+      <td class="strat">No dedup — always create</td>
+      <td class="note">Each extraction is a unique event with its provenance. Multiple signals of the same type from different documents are valid (accumulated evidence).</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>InsuredItem &mdash; the key depends on what the item is <span class="count">(type-conditional)</span></h2>
+    <p class="sub">InsuredItem has no single natural key. Which field identifies it depends on <code>item_type</code>. Note that <code>item_number</code> (&ldquo;7 of 14&rdquo;) is <b>not</b> unique across policies.</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>item_type</th><th>Natural identifier</th><th>Real-world example</th></tr></thead>
+        <tbody><tr><td><span class="ent">vehicle</span></td><td><code class="pk">vin</code></td><td class="note">Globally unique VIN. Already a named column in the model.</td></tr><tr><td><span class="ent">property</span></td><td><code class="pk">registry / cadastral ID</code></td><td class="note">A building has no VIN. In Colombia: matrícula inmobiliaria or cédula catastral. Address is a weak fallback (inconsistently written), like a name is for a Party.</td></tr><tr><td><span class="ent">equipment</span></td><td><code class="pk">serial number</code></td><td class="note">Manufacturer serial number.</td></tr><tr><td><span class="ent">cargo</span></td><td><code class="pk">shipment / bill-of-lading reference</code></td><td class="note">Cargo is often transient, so it may resolve by (policy_id + description).</td></tr><tr><td><span class="ent">all types</span></td><td><code class="pk">policy_id + item_number</code></td><td class="note">Fallback when no strong identifier is present in the document.</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+<footer>
+  Entity Resolution Specification &mdash; Qubru PLM v3.1 &middot; companion to the Data Model v3.1 &middot;
+  transcribed verbatim from the source specification. Field names and foreign keys in this document exist in the v3.1 model.
+</footer>
+</body>
+</html>
